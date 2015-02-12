@@ -1,5 +1,6 @@
 package org.vaadin.tingerforge;
 
+import org.vaadin.tingerforge.displays.GaugeDisplay;
 import com.vaadin.annotations.Push;
 import javax.servlet.annotation.WebServlet;
 
@@ -11,6 +12,7 @@ import com.vaadin.shared.communication.PushMode;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.themes.ValoTheme;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -21,13 +23,13 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 @Theme("valo")
 @SuppressWarnings("serial")
 @Push(value = PushMode.AUTOMATIC)
-public class ApplicationUI extends UI {
+public class MqttDashboardUI extends UI {
 
     public static final String LOCAL_SERVER = "tcp://127.0.0.1:1883";
     private HashMap<Topic, MqttClient> clients = new HashMap<Topic, MqttClient>();
 
     @WebServlet(value = {"/*"}, asyncSupported = true)
-    @VaadinServletConfiguration(productionMode = false, ui = ApplicationUI.class)
+    @VaadinServletConfiguration(productionMode = false, ui = MqttDashboardUI.class)
     public static class Servlet extends VaadinServlet {
     }
 
@@ -37,19 +39,17 @@ public class ApplicationUI extends UI {
         layout.setMargin(true);
         layout.setSpacing(true);
         setContent(layout);
-        layout.addComponent(new Label("MQTT Channels"));
+        Label title = new Label("MQTT Channels");
+        title.setStyleName(ValoTheme.LABEL_H1);
+        layout.addComponent(title);
 
         // Receive all topics using a separate client
-        // Hopefully clients are not expensive. :)
+        // Hopefully clients are not too expensive objects. :)
         Topic[] topics = Topic.values();
         for (Topic topic : topics) {
-            try {
-                MqttClient client = new MqttClient(LOCAL_SERVER, "CLIENT-" + topic.name(), new MemoryPersistence());
-                layout.addComponent(new GaugeDisplay(topic, client, 0, 100));
-                
-            } catch (MqttException ex) {
-                Logger.getLogger(ApplicationUI.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            String id = "CLIENT-" + topic.name();
+            GaugeDisplay gauge = new GaugeDisplay(LOCAL_SERVER, topic, id, 0, 100);
+            layout.addComponent(gauge);
 
         }
 
