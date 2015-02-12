@@ -3,9 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.vaadin.tingerforge.displays;
+package org.vaadin.tinkerforge.displays;
 
 import com.vaadin.addon.charts.Chart;
+import com.vaadin.addon.charts.model.ChartModel;
 import com.vaadin.addon.charts.model.ChartType;
 import com.vaadin.addon.charts.model.Configuration;
 import com.vaadin.addon.charts.model.Labels;
@@ -15,9 +16,9 @@ import com.vaadin.addon.charts.model.YAxis;
 import com.vaadin.addon.charts.model.style.GradientColor;
 import com.vaadin.addon.charts.model.style.SolidColor;
 import java.nio.charset.Charset;
-import org.eclipse.paho.client.mqttv3.MqttClient;
+
 import org.eclipse.paho.client.mqttv3.MqttMessage;
-import org.vaadin.tingerforge.Topic;
+import org.vaadin.tinkerforge.Topic;
 
 /**
  * Gauge display for MQTT client.
@@ -28,9 +29,6 @@ public class GaugeDisplay extends MqttDisplay {
 
     protected Chart gauge;
 
-    protected static int GAUGE_MIN = 0;
-    protected static int GAUGE_MAX = 100;
-
     public GaugeDisplay(String serverUrl, Topic topic, String id, Number min, Number max) {
         super(serverUrl, id, topic);
     }
@@ -39,64 +37,74 @@ public class GaugeDisplay extends MqttDisplay {
     public void messageArrived(String string, MqttMessage mm) {
 
         if (gauge == null) {
-            gauge = createGaugeChart(getTopic().getName(), getTopic().getUnit(), GAUGE_MIN, GAUGE_MAX);
+            gauge = createGaugeChart(getTopic().getName(), getTopic().getUnit(), getTopic().getMin(), getTopic().getMax());
             showChart(gauge);
         }
 
         String lastMessage = payloadToString(mm);
-        gauge.getConfiguration()
-                .getSeries()
-                .forEach(s -> {
-                    Double newValue = Double.valueOf(lastMessage.split(":")[3]);
-                    ((ListSeries) s).updatePoint(0, newValue);
-                });
+        if (lastMessage != null) {
+            gauge.getConfiguration()
+                    .getSeries()
+                    .forEach(s -> {
+                        Double newValue = Double.valueOf(lastMessage.split(":")[3]);
+                        ((ListSeries) s).updatePoint(0, newValue);
+                    });
+        }
     }
 
-    protected Chart createGaugeChart(String name, String unit, int min, int max) {
+    protected Chart createGaugeChart(String name, String unit, Number min, Number max) {
         final Chart chart = new Chart();
+        chart.setWidth(GAUGE_SIZE_PX);
+        chart.setHeight(GAUGE_SIZE_PX);
+        
+        final Configuration conf = new Configuration();
+        conf.setTitle((String) null);
 
-        final Configuration configuration = new Configuration();
-        configuration.getChart().setType(ChartType.GAUGE);
-        configuration.getChart().setAlignTicks(false);
-        configuration.getChart().setPlotBackgroundColor(null);
-        configuration.getChart().setPlotBackgroundImage(null);
-        configuration.getChart().setPlotBorderWidth(0);
-        configuration.getChart().setPlotShadow(false);
+        ChartModel c = conf.getChart();
+        c.setType(ChartType.GAUGE);
+        c.setAlignTicks(false);
+        c.setPlotBackgroundColor(null);
+        c.setPlotBackgroundImage(null);
+        c.setPlotBorderWidth(0);
+        c.setPlotShadow(false);
+       
 
-        configuration.getPane().setStartAngle(-150);
-        configuration.getPane().setEndAngle(150);
+        conf.getPane().setStartAngle(-150);
+        conf.getPane().setEndAngle(150);
+        c.setBackgroundColor(new SolidColor(COLOR_BACKGROUND));
 
         YAxis yAxis = new YAxis();
         yAxis.setMin(min);
         yAxis.setMax(max);
-        yAxis.setLineColor(new SolidColor(COLOR_PRIMARY));
+        yAxis.setLineColor(new SolidColor(COLOR_BACKGROUND));
         yAxis.setTickColor(new SolidColor(COLOR_PRIMARY));
         yAxis.setMinorTickColor(new SolidColor(COLOR_PRIMARY));
         yAxis.setOffset(-25);
-        yAxis.setLineWidth(2);
+        yAxis.setLineWidth(0);
         yAxis.setLabels(new Labels());
         yAxis.getLabels().setDistance(-20);
         yAxis.getLabels().setRotationPerpendicular();
         yAxis.setTickLength(5);
         yAxis.setMinorTickLength(5);
         yAxis.setEndOnTick(false);
-        configuration.addyAxis(yAxis);
+        conf.addyAxis(yAxis);
 
         final ListSeries series = new ListSeries(name + " (" + unit + ")", 12);
 
-        PlotOptionsGauge plotOptionsGauge = new PlotOptionsGauge();
-        plotOptionsGauge.setDataLabels(new Labels());
-        plotOptionsGauge.getDataLabels().setFormatter("function() {return '' + this.y +  ' " + unit + "';}");
-        plotOptionsGauge.getTooltip().setValueSuffix(unit);
+        PlotOptionsGauge go = new PlotOptionsGauge();
+        go.setDataLabels(new Labels());
+        go.getDataLabels().setFormatter("function() {return '' + this.y +  ' " + unit + "';}");
+        go.getTooltip().setValueSuffix(unit);
+        go.getDataLabels().setBackgroundColor(new SolidColor(COLOR_BACKGROUND));
+        go.setColor(new SolidColor(COLOR_BACKGROUND));
 
-        plotOptionsGauge.getDataLabels().setBackgroundColor(new SolidColor(COLOR_SECONDARY));
-
-        series.setPlotOptions(plotOptionsGauge);
-        configuration.setSeries(series);
-        chart.drawChart(configuration);
+        series.setPlotOptions(go);
+        conf.setSeries(series);
+        chart.drawChart(conf);
 
         return chart;
     }
+    private static final String GAUGE_SIZE_PX = "275px";
 
     protected GradientColor getLinearGradient(String from, String toColor) {
         GradientColor gradient = GradientColor.createLinear(0, 0, 0, 1);

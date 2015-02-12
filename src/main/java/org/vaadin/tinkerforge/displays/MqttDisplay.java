@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.vaadin.tingerforge.displays;
+package org.vaadin.tinkerforge.displays;
 
 import com.vaadin.addon.charts.Chart;
 import com.vaadin.ui.CssLayout;
@@ -18,7 +18,7 @@ import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
-import org.vaadin.tingerforge.Topic;
+import org.vaadin.tinkerforge.Topic;
 
 /**
  * Abstract parent class for displays with single MQTT client / topic.
@@ -30,6 +30,7 @@ public abstract class MqttDisplay extends CustomComponent {
     protected String MQTT_CHARSET = "UTF-8";
     protected static String COLOR_PRIMARY = "#339";
     protected static String COLOR_SECONDARY = "#DDD";
+    protected static String COLOR_BACKGROUND = "#FFF";
 
     private MqttClient client;
     private final Topic topic;
@@ -50,6 +51,7 @@ public abstract class MqttDisplay extends CustomComponent {
         this.topic = topic;
         layout.setStyleName(topic.name().toLowerCase());
         title.setStyleName(ValoTheme.LABEL_H3);
+        title.setValue(topic.getName());
         setCompositionRoot(layout);
         showUserMessage(STR_NOT_CONNECTED, true);
     }

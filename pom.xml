@@ -68,6 +68,13 @@
             <artifactId>viritin</artifactId>
             <version>1.26</version>
         </dependency>
+        
+        <dependency>
+            <groupId>org.vaadin.alump.masonry</groupId>
+            <artifactId>masonry-addon</artifactId>
+            <version>0.3.0</version>
+        </dependency>
+        
     </dependencies>
     
     <build>
