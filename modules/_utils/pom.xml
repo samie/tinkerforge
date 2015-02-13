@@ -9,15 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>tinkerforge</artifactId>
+    <artifactId>_utils</artifactId>
 
-
-    <dependencies>
-        <dependency>
-            <groupId>com.tinkerforge</groupId>
-            <artifactId>tinkerforge</artifactId>
-        </dependency>
-
-    </dependencies>
 
 </project>

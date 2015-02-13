@@ -15,6 +15,7 @@
         <module>vaadin</module>
         <module>tinkerforge</module>
         <module>communications</module>
+        <module>_utils</module>
     </modules>
 
 
