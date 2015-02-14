@@ -11,8 +11,8 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 import org.eclipse.paho.client.mqttv3.MqttClient;
-import org.vaadin.tinkerforge.Topic;
 import org.vaadin.tinkerforge.displays.GaugeDisplay;
+import org.vaadin.tinkerforge.modules.communication.mqtt.Topic;
 
 import javax.servlet.annotation.WebServlet;
 import java.util.HashMap;

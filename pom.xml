@@ -137,6 +137,15 @@
                 <version>4.11</version>
                 <scope>test</scope>
             </dependency>
+
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-math3</artifactId>
+                <version>3.3</version>
+            </dependency>
+
+
+
             <!--testing-->
         </dependencies>
 
@@ -148,28 +157,7 @@
 
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>in.virit.vwscdn</groupId>
-                <artifactId>vwscdn-maven-plugin</artifactId>
-                <version>1.3.0</version>
-                <executions>
-                    <execution>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-maven-plugin</artifactId>
-                <version>9.2.3.v20140905</version>
-            </plugin>
-        </plugins>
-    </build>
+
 
     <repositories>
         <repository>
@@ -180,9 +168,6 @@
             <id>eclipse-paho</id>
             <url>https://repo.eclipse.org/content/repositories/paho-releases/</url>
         </repository>
-
-
-
 
         <!--mqtt server -->
             <repository>
@@ -196,10 +181,6 @@
                 </snapshots>
             </repository>
         <!--mqtt server -->
-
-
-
-
     </repositories>
 
     <pluginRepositories>

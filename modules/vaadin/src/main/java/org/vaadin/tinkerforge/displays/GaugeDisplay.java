@@ -18,7 +18,7 @@ import com.vaadin.addon.charts.model.style.SolidColor;
 import java.nio.charset.Charset;
 
 import org.eclipse.paho.client.mqttv3.MqttMessage;
-import org.vaadin.tinkerforge.Topic;
+import org.vaadin.tinkerforge.modules.communication.mqtt.Topic;
 
 /**
  * Gauge display for MQTT client.

@@ -18,7 +18,7 @@ import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
-import org.vaadin.tinkerforge.Topic;
+import org.vaadin.tinkerforge.modules.communication.mqtt.Topic;
 
 /**
  * Abstract parent class for displays with single MQTT client / topic.

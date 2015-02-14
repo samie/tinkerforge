@@ -14,6 +14,13 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.vaadin.tinkerforge</groupId>
+            <artifactId>mqtt</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+
+        <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-server</artifactId>
             <exclusions>
@@ -64,6 +71,33 @@
             <artifactId>masonry-addon</artifactId>
         </dependency>
 
+
+
+
     </dependencies>
+
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>in.virit.vwscdn</groupId>
+                <artifactId>vwscdn-maven-plugin</artifactId>
+                <version>1.3.0</version>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-maven-plugin</artifactId>
+                <version>9.2.3.v20140905</version>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

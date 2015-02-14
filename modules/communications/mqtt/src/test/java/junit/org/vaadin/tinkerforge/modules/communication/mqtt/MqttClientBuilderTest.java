@@ -1,25 +1,24 @@
 package junit.org.vaadin.tinkerforge.modules.communication.mqtt;
 
-import junit.framework.Assert;
-import org.eclipse.paho.client.mqttv3.*;
+import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+import org.eclipse.paho.client.mqttv3.MqttCallback;
+import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.junit.Test;
-import org.vaadin.tinkerforge.modules._utils.WaitForQ;
 import org.vaadin.tinkerforge.modules.communication.mqtt.MqttBuffer;
 import org.vaadin.tinkerforge.modules.communication.mqtt.MqttClientBuilder;
 
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.stream.IntStream;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class MqttClientBuilderTest {
 
-    public static final int QUALITY = 1;
+
 
     @org.junit.Before
     public void setUp() throws Exception {
@@ -30,11 +29,8 @@ public class MqttClientBuilderTest {
     public void tearDown() throws Exception {
 
     }
-
-
-    static final ExecutorService fixedThreadPool = Executors.newFixedThreadPool(4); //TODO dynamisch
+    public static final int QUALITY = 1;
     public static final String TOPIC = "TinkerForge/Wetterstation/";
-    public static final String HOST = "127.0.0.1";  //wetterstation
     public static final String BROKER = "127.0.0.1";  //wetterstation
 
     @Test
@@ -85,7 +81,6 @@ public class MqttClientBuilderTest {
             }
         }, 0, 1_000);
 
-        //to fast for broker -- messages lost
         IntStream.range(0,100).forEach(v -> buffer.sendAsync(v+""));
 
         Thread.sleep(3_000);
