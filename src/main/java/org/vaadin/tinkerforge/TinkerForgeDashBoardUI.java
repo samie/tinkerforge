@@ -37,6 +37,7 @@ public class TinkerForgeDashBoardUI extends MqttDashboardUI {
             add(GaugeDisplay.class, MQTT_BROKER, LIGHT, CONVERTER, "#BBBBBB", "#FF9900","#FFFF00");
             add(SparklineDisplay.class, MQTT_BROKER, LIGHT, CONVERTER, "#0066FF");
             add(BarGaugeDisplay.class, MQTT_BROKER, TEMP, CONVERTER, "#000099", "#66CCFF", "#FF3300");
+            add(SparklineDisplay.class, MQTT_BROKER, TEMP, CONVERTER, "#000099");
             add(BarGaugeDisplay.class, MQTT_BROKER, HUMIDITY, CONVERTER, "#000099", "#66CCFF");
             add(SparklineDisplay.class, MQTT_BROKER, AIR_PRESSURE, CONVERTER,"#000099", "#66CCFF");
         }
