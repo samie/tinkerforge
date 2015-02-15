@@ -41,7 +41,8 @@ public class MqttTopic {
         return max;
     }
 
-    public static final MqttTopic[] ALL = new MqttTopic[]{
+    /** Wetterstation topics */
+    public static final MqttTopic[] WETTERSTATION_ALL = new MqttTopic[]{
         new MqttTopic("TinkerForge/Wetterstation/Light", "Ambient Light", "Lux", 1, 1000),
         new MqttTopic("TinkerForge/Wetterstation/Temp", "Temperature", "C", -40, +40),
         new MqttTopic("TinkerForge/Wetterstation/Hum", "Humidity", "%RH", 0, 100),

@@ -28,7 +28,7 @@ public class DemoDataPublisherMain {
                 .build();
         sender.connect();
 
-        MqttTopic[] topics = MqttTopic.ALL;
+        MqttTopic[] topics = MqttTopic.WETTERSTATION_ALL;
 
         Map<MqttTopic, MqttBuffer> mqttBufferMap = new HashMap<>();
 

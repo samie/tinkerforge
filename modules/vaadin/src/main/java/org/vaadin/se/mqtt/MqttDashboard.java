@@ -63,6 +63,7 @@ public class MqttDashboard {
     }
 
     public MqttDashboard(String title) {
+        setTitle(title);
     }
 
     public void add(MqttDisplay display) {

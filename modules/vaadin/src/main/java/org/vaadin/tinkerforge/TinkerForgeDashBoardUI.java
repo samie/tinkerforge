@@ -18,7 +18,7 @@ import org.vaadin.se.mqtt.displays.SparklineDisplay;
  */
 public class TinkerForgeDashBoardUI extends MqttDashboardUI {
 
-    private static final String MQTT_BROKER = "tcp://mqtt.virit.in:1883";
+    private static final String MQTT_BROKER = "tcp://127.0.0.1:1883";
 
     protected static final String MQTT_MESSAGE_CHARSET = "UTF-8";
 
