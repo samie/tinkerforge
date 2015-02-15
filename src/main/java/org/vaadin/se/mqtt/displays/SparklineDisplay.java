@@ -4,7 +4,7 @@ import com.vaadin.addon.charts.Chart;
 import com.vaadin.addon.charts.model.ChartType;
 import com.vaadin.addon.charts.model.DataSeries;
 import org.vaadin.se.mqtt.MqttDataSource;
-import org.vaadin.se.mqtt.MqttMessageParser;
+import org.vaadin.se.mqtt.MqttMessageConverter;
 
 /**
  * Gauge display for MQTT client.
@@ -13,8 +13,8 @@ import org.vaadin.se.mqtt.MqttMessageParser;
  */
 public class SparklineDisplay extends MqttDisplay {
 
-    public SparklineDisplay(MqttDataSource source, MqttMessageParser converter) {
-        super(source, converter);
+    public SparklineDisplay(MqttDataSource source, MqttMessageConverter converter) {
+        super(source, 30, converter);
     }
 
     @Override

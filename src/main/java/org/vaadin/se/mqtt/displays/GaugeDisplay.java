@@ -12,7 +12,7 @@ import com.vaadin.addon.charts.model.YAxis;
 import com.vaadin.addon.charts.model.style.GradientColor;
 import com.vaadin.addon.charts.model.style.SolidColor;
 import org.vaadin.se.mqtt.MqttDataSource;
-import org.vaadin.se.mqtt.MqttMessageParser;
+import org.vaadin.se.mqtt.MqttMessageConverter;
 
 /**
  * Gauge display for MQTT client.
@@ -21,8 +21,8 @@ import org.vaadin.se.mqtt.MqttMessageParser;
  */
 public class GaugeDisplay extends MqttDisplay {
 
-    public GaugeDisplay(MqttDataSource source, MqttMessageParser converter) {
-        super(source, converter);
+    public GaugeDisplay(MqttDataSource source, MqttMessageConverter converter) {
+        super(source, 0, converter);
     }
 
     @Override
@@ -45,7 +45,7 @@ public class GaugeDisplay extends MqttDisplay {
         YAxis.Stop stop2 = new YAxis.Stop(0.5f, SolidColor.ORANGE);
         YAxis.Stop stop3 = new YAxis.Stop(0.9f, SolidColor.YELLOW);
         cu.stops(stop1, stop2, stop3);
-                
+
         return cu.draw();
     }
 

@@ -2,14 +2,19 @@ package org.vaadin.se.mqtt.displays;
 
 import com.vaadin.addon.charts.Chart;
 import com.vaadin.addon.charts.model.AbstractSeries;
+import com.vaadin.addon.charts.model.DataSeries;
+import com.vaadin.addon.charts.model.DataSeriesItem;
+import com.vaadin.addon.charts.model.ListSeries;
 import com.vaadin.addon.charts.model.Series;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.themes.ValoTheme;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.IntStream;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;
@@ -18,7 +23,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.vaadin.alump.masonry.MasonryLayout;
 import org.vaadin.se.mqtt.MqttDataSource;
-import org.vaadin.se.mqtt.MqttMessageParser;
+import org.vaadin.se.mqtt.MqttMessageConverter;
 
 /**
  * Abstract parent class for displays with single MQTT client / topic.
@@ -46,11 +51,13 @@ public abstract class MqttDisplay extends CustomComponent {
     private final String STR_CONNECTION_LOST = "No connection";
     private final MqttDataSource source;
 
-    protected Chart gauge;
-    private MqttMessageParser converter;
+    protected Chart chart;
+    private MqttMessageConverter converter;
+    private int historyLength;
 
-    MqttDisplay(MqttDataSource source, MqttMessageParser converter) {
+    MqttDisplay(MqttDataSource source, int historyLength, MqttMessageConverter converter) {
         this.source = source;
+        this.historyLength = historyLength;
         this.converter = converter;
         layout.setStyleName(source.getTopic().getName().toLowerCase());
         title.setStyleName(ValoTheme.LABEL_H3);
@@ -131,23 +138,23 @@ public abstract class MqttDisplay extends CustomComponent {
 
     public void messageArrived(String id, MqttMessage message) {
 
-        if (gauge == null) {
-            gauge = createChart(getSource().getTopic().getName(), getSource().getTopic().getUnit(), getSource().getTopic().getMin(), getSource().getTopic().getMax());
-            showChart(gauge);
-            ((MasonryLayout)getParent()).markAsDirty();
+        if (chart == null) {
+            chart = createChart(getSource().getTopic().getName(), getSource().getTopic().getUnit(), getSource().getTopic().getMin(), getSource().getTopic().getMax());
+            showChart(chart);
+            ((MasonryLayout) getParent()).markAsDirty();
         }
 
-        // Update the series value
-        getSeries().forEach(s -> converter.convert((AbstractSeries) s, source.getTopic(), message));
+        // Update the display values
+        converter.convert(this, source.getTopic(), message);
 
     }
 
-    protected List<Series> getSeries() {
-        return gauge.getConfiguration().getSeries();
+    public List<Series> getSeries() {
+        return chart.getConfiguration().getSeries();
     }
 
     public void deliveryComplete(IMqttDeliveryToken imdt) {
-        // Not needed?
+        // Not needed
     }
 
     public void connectionLost(String message) {
@@ -164,6 +171,44 @@ public abstract class MqttDisplay extends CustomComponent {
      * @return
      */
     protected abstract Chart createChart(String name, String unit, Number min, Number max);
+
+    /**
+     * Updates all series with the given values.
+     *
+     * @param values
+     */
+    public void updateValue(Number... values) {
+        getSeries().forEach(s -> {
+            IntStream.range(0, values.length).forEach(idx
+                    -> updateSeries((DataSeries) s, idx, values[idx], 0 == historyLength));
+        });
+    }
+
+    /**
+     * Updates the new value in the given series.
+     *
+     * @param series
+     * @param index
+     * @param newValue
+     * @param singleValueDisplay
+     */
+    protected void updateSeries(DataSeries series, int index, Number newValue, boolean singleValueDisplay) {
+        if (singleValueDisplay) {
+            // Animated update of single value
+            if (series.getData().size() == 1) {
+                DataSeriesItem item = series.get(index);
+                item.setY(newValue);
+                series.update(item);
+            } else {
+                DataSeriesItem dataItem = new DataSeriesItem(index, newValue);
+                series.add(dataItem);
+            }
+        } else {
+            // add to dataset and rotate if needed
+            DataSeriesItem dataItem = new DataSeriesItem(new Date(), newValue);
+            series.add(dataItem, true, series.getData().size() > historyLength);
+        }
+    }
 
     /* MQTT callback for wiring MQTT events to UI updates.    
      */
@@ -196,7 +241,7 @@ public abstract class MqttDisplay extends CustomComponent {
      *
      * @return the value of converter
      */
-    public MqttMessageParser getConverter() {
+    public MqttMessageConverter getConverter() {
         return converter;
     }
 
@@ -205,7 +250,7 @@ public abstract class MqttDisplay extends CustomComponent {
      *
      * @param converter new value of converter
      */
-    public void setConverter(MqttMessageParser converter) {
+    public void setConverter(MqttMessageConverter converter) {
         this.converter = converter;
     }
 }

@@ -9,10 +9,11 @@ import java.util.Date;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.vaadin.se.mqtt.MqttDashboard;
 import org.vaadin.se.mqtt.MqttDashboardUI;
-import org.vaadin.se.mqtt.MqttMessageParser;
+import org.vaadin.se.mqtt.MqttMessageConverter;
 import org.vaadin.se.mqtt.MqttTopic;
 import org.vaadin.se.mqtt.displays.GaugeDisplay;
 import org.vaadin.se.mqtt.displays.BarGaugeDisplay;
+import org.vaadin.se.mqtt.displays.MqttDisplay;
 import org.vaadin.se.mqtt.displays.SparklineDisplay;
 
 /**
@@ -33,17 +34,16 @@ public class TinkerForgeDashBoardUI extends MqttDashboardUI {
     private static final MqttTopic AIR_PRESSURE = new MqttTopic("TinkerForge/Wetterstation/Air", "Air Pressure", "mBar", 500, 1500);
 
     // Special data parsers for the above messages
-    private WetterstationDataParser singleValue = new WetterstationDataParser(0, 3);
-    private WetterstationDataParser historyValues = new WetterstationDataParser(30, 3);
-
+    private WetterstationDataParser CONVERTER = new WetterstationDataParser(3);
+    
     // Dashboard specification
     private final MqttDashboard dashboardSpec = new MqttDashboard("TinkerForge Wetterstation") {
         {
-            add(GaugeDisplay.class, MQTT_BROKER, LIGHT, singleValue);
-            add(SparklineDisplay.class, MQTT_BROKER, LIGHT, historyValues);
-            add(BarGaugeDisplay.class, MQTT_BROKER, TEMP, singleValue);
-            add(BarGaugeDisplay.class, MQTT_BROKER, HUMIDITY, singleValue);
-            add(SparklineDisplay.class, MQTT_BROKER, AIR_PRESSURE, historyValues);
+            add(GaugeDisplay.class, MQTT_BROKER, LIGHT, CONVERTER);
+            add(SparklineDisplay.class, MQTT_BROKER, LIGHT, CONVERTER);
+            add(BarGaugeDisplay.class, MQTT_BROKER, TEMP, CONVERTER);
+            add(BarGaugeDisplay.class, MQTT_BROKER, HUMIDITY, CONVERTER);
+            add(SparklineDisplay.class, MQTT_BROKER, AIR_PRESSURE, CONVERTER);
         }
 
     };
@@ -57,59 +57,45 @@ public class TinkerForgeDashBoardUI extends MqttDashboardUI {
      * Convert MQTT messages to Chart values.
      *
      */
-    public static class WetterstationDataParser implements MqttMessageParser {
+    public static class WetterstationDataParser implements MqttMessageConverter {
 
         private final int[] fields;
-        private final int historySize;
 
-        public WetterstationDataParser(int historySize, int... messageField) {
-            this.historySize = historySize;
+        public WetterstationDataParser(int... messageField) {
             this.fields = messageField;
         }
 
         @Override
-        public void convert(AbstractSeries series, MqttTopic topic, MqttMessage message) {
+        public void convert(final MqttDisplay display, final MqttTopic topic, final MqttMessage message) {
             String[] splitted = payloadToString(message);
             if (splitted == null) {
-                return;
+                return; // Got nothing
             }
 
-            double[] values = new double[splitted.length];
+            // Parse a
+            Number[] numbers = new Number[splitted.length];
             for (int i = 0; i < splitted.length; i++) {
                 try {
-                    values[i] = Double.parseDouble(splitted[i]);
+                    numbers[i] = Double.parseDouble(splitted[i]);
                 } catch (Exception e) {
                     System.err.println("Failed to parse message field=" + i + ", topic=" + topic.getTopic());
                 }
             }
+
+            // Pick only requested fields
+            Number[] values = new Number[fields.length];
             for (int i = 0; i < fields.length; i++) {
-                DataSeries s = (DataSeries) series;
                 if (fields[i] >= values.length && fields[i] < 0) {
                     System.err.println("Missing field in received message field=" + fields[i] + ", topic=" + topic.getTopic());
                     return;
-                }
-
-                if (historySize == 0) {
-                    // Animated update of single value
-                    ListSeries l;
-                    if (s.getData().size() == 1) {
-                        DataSeriesItem item = s.get(0);
-                        item.setY(values[fields[i]]);
-                        s.update(item);
-                        System.err.println("update value=" + values[fields[i]] + ", topic=" + topic.getTopic());
-                    } else {
-                        DataSeriesItem dataItem = new DataSeriesItem(0, values[fields[i]]);
-                        s.add(dataItem);
-                        System.err.println("add value=" + values[fields[i]] + ", topic=" + topic.getTopic());
-
-                    }
                 } else {
-                    // add to dataset and rotate if needed
-                    System.err.println("history value=" + values[fields[i]] + ", topic=" + topic.getTopic());
-                    DataSeriesItem dataItem = new DataSeriesItem(new Date(), values[fields[i]]);
-                    s.add(dataItem, true, s.getData().size() > historySize);
+                    values[i] = numbers[fields[i]];
                 }
             }
+
+            // Update the display char data
+            display.updateValue(values);
+
         }
     }
 

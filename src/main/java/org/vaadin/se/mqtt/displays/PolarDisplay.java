@@ -6,7 +6,7 @@ import com.vaadin.addon.charts.model.DataSeries;
 import com.vaadin.addon.charts.model.PlotOptionsColumn;
 import com.vaadin.addon.charts.model.XAxis;
 import org.vaadin.se.mqtt.MqttDataSource;
-import org.vaadin.se.mqtt.MqttMessageParser;
+import org.vaadin.se.mqtt.MqttMessageConverter;
 
 /**
  * Gauge display for MQTT client.
@@ -15,8 +15,8 @@ import org.vaadin.se.mqtt.MqttMessageParser;
  */
 public class PolarDisplay extends MqttDisplay {
 
-    public PolarDisplay(MqttDataSource source, MqttMessageParser converter) {
-        super(source, converter);
+    public PolarDisplay(MqttDataSource source, MqttMessageConverter converter) {
+        super(source, 0, converter);
     }
 
     @Override

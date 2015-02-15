@@ -79,9 +79,9 @@ public class MqttDashboard {
      * @param topic
      * @param parser
      */
-    public void add(Class<? extends MqttDisplay> displayClass, String url, MqttTopic topic, MqttMessageParser parser) {
+    public void add(Class<? extends MqttDisplay> displayClass, String url, MqttTopic topic, MqttMessageConverter parser) {
         try {
-            Constructor<? extends MqttDisplay> constructor = displayClass.getConstructor(MqttDataSource.class, MqttMessageParser.class);
+            Constructor<? extends MqttDisplay> constructor = displayClass.getConstructor(MqttDataSource.class, MqttMessageConverter.class);
             MqttDisplay instance = constructor.newInstance(new MqttDataSource(url, topic), parser);
             add(instance);
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException ex) {

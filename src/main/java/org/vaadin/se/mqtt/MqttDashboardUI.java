@@ -20,6 +20,7 @@ import org.vaadin.se.mqtt.displays.MqttDisplay;
 public abstract class MqttDashboardUI extends UI {
 
     private Label title;
+    private MasonryLayout columnLayout;
 
     @Override
     protected void init(VaadinRequest request) {
@@ -34,7 +35,7 @@ public abstract class MqttDashboardUI extends UI {
         title.setStyleName(ValoTheme.LABEL_H1);
         baseLayout.addComponent(title);
 
-        MasonryLayout columnLayout = new MasonryLayout(300);
+        columnLayout = new MasonryLayout(300);
         baseLayout.addComponent(columnLayout);
         baseLayout.setComponentAlignment(columnLayout, Alignment.TOP_LEFT);
         baseLayout.setExpandRatio(columnLayout, 1f);

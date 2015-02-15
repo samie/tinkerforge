@@ -7,7 +7,7 @@ import com.vaadin.addon.charts.model.YAxis;
 import com.vaadin.addon.charts.model.style.GradientColor;
 import com.vaadin.addon.charts.model.style.SolidColor;
 import org.vaadin.se.mqtt.MqttDataSource;
-import org.vaadin.se.mqtt.MqttMessageParser;
+import org.vaadin.se.mqtt.MqttMessageConverter;
 
 /**
  * Linear gauge display for MQTT client.
@@ -16,8 +16,8 @@ import org.vaadin.se.mqtt.MqttMessageParser;
  */
 public class BarGaugeDisplay extends MqttDisplay {
 
-    public BarGaugeDisplay(MqttDataSource source, MqttMessageParser converter) {
-        super(source, converter);
+    public BarGaugeDisplay(MqttDataSource source, MqttMessageConverter converter) {
+        super(source, 0, converter);
     }
 
     @Override
