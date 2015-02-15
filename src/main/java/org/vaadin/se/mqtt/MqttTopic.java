@@ -1,21 +1,11 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package org.vaadin.tinkerforge;
+package org.vaadin.se.mqtt;
 
 /**
  * MQTT topics that can be subscribed and displayed using MqttDisplay.
  *
  * @author Sami Ekblad
  */
-public enum Topic {
-
-    LIGHT("TinkerForge/Wetterstation/Light", "Ambient Light", "Lux", 1, 1000),
-    TEMP("TinkerForge/Wetterstation/Temp", "Temperature", "C", -40, +40),
-    HUMIDITY("TinkerForge/Wetterstation/Hum", "Humidity", "%RH", 0, 100),
-    AIR_PRESSURE("TinkerForge/Wetterstation/Air", "Air Pressure", "mBar", 500, 1500);
+public class MqttTopic {
 
     private final String topicId;
     private final String name;
@@ -23,7 +13,7 @@ public enum Topic {
     private final Number min;
     private final Number max;
 
-    private Topic(String topicId, String name, String unit, Number min, Number max) {
+    public MqttTopic(String topicId, String name, String unit, Number min, Number max) {
         this.topicId = topicId;
         this.name = name;
         this.unit = unit;
@@ -50,7 +40,5 @@ public enum Topic {
     public Number getMax() {
         return max;
     }
-    
-    
 
 }

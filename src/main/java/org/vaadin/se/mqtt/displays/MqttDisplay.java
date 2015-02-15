@@ -1,15 +1,13 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package org.vaadin.tinkerforge.displays;
+package org.vaadin.se.mqtt.displays;
 
 import com.vaadin.addon.charts.Chart;
+import com.vaadin.addon.charts.model.AbstractSeries;
+import com.vaadin.addon.charts.model.Series;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.themes.ValoTheme;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
@@ -18,7 +16,9 @@ import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
-import org.vaadin.tinkerforge.Topic;
+import org.vaadin.alump.masonry.MasonryLayout;
+import org.vaadin.se.mqtt.MqttDataSource;
+import org.vaadin.se.mqtt.MqttMessageParser;
 
 /**
  * Abstract parent class for displays with single MQTT client / topic.
@@ -27,13 +27,15 @@ import org.vaadin.tinkerforge.Topic;
  */
 public abstract class MqttDisplay extends CustomComponent {
 
-    protected String MQTT_CHARSET = "UTF-8";
+    protected static final String SIZE_X_PX = "275px";
+    protected static final String SIZE_Y_PX = "275px";
+    protected static final String SIZE_Y_025_PX = "65px";
+
     protected static String COLOR_PRIMARY = "#339";
-    protected static String COLOR_SECONDARY = "#DDD";
+    protected static String COLOR_SECONDARY = "#EEE";
     protected static String COLOR_BACKGROUND = "#FFF";
 
     private MqttClient client;
-    private final Topic topic;
 
     private final CssLayout layout = new CssLayout();
     private final Label title = new Label("");
@@ -42,22 +44,23 @@ public abstract class MqttDisplay extends CustomComponent {
     private final String STR_WAITING_READING = "Waiting for reading...";
     private final String STR_CONNECTION_ERROR = "Connection failed to";
     private final String STR_CONNECTION_LOST = "No connection";
-    private final String clientId;
-    private final String serverUrl;
+    private final MqttDataSource source;
 
-    MqttDisplay(String serverUrl, String id, Topic topic) {
-        this.serverUrl = serverUrl;
-        this.clientId = id;
-        this.topic = topic;
-        layout.setStyleName(topic.name().toLowerCase());
+    protected Chart gauge;
+    private MqttMessageParser converter;
+
+    MqttDisplay(MqttDataSource source, MqttMessageParser converter) {
+        this.source = source;
+        this.converter = converter;
+        layout.setStyleName(source.getTopic().getName().toLowerCase());
         title.setStyleName(ValoTheme.LABEL_H3);
-        title.setValue(topic.getName());
+        title.setValue(source.getTopic().getName());
         setCompositionRoot(layout);
         showUserMessage(STR_NOT_CONNECTED, true);
     }
 
-    public Topic getTopic() {
-        return topic;
+    public MqttDataSource getSource() {
+        return source;
     }
 
     public MqttClient getClient() {
@@ -69,7 +72,7 @@ public abstract class MqttDisplay extends CustomComponent {
         super.detach();
         try {
             if (client != null) {
-                client.unsubscribe(topic.getTopic());
+                client.unsubscribe(source.getTopic().getTopic());
                 client.close();
             }
         } catch (MqttException ex) {
@@ -84,21 +87,21 @@ public abstract class MqttDisplay extends CustomComponent {
         // Lazy initialization of MQTT client
         if (client == null) {
             try {
-                this.client = new MqttClient(this.serverUrl, this.clientId, new MemoryPersistence());
+                this.client = new MqttClient(this.source.getUrl(), this.source.getClientId(), new MemoryPersistence());
             } catch (MqttException ex) {
                 Logger.getLogger(MqttDisplay.class.getName()).log(Level.SEVERE, null, ex);
-                showUserMessage(STR_CONNECTION_ERROR + " id='" + clientId + "': " + ex.getMessage(), false);
+                showUserMessage(STR_CONNECTION_ERROR + " id='" + this.source.getClientId() + "': " + ex.getMessage(), false);
             }
         }
 
         client.setCallback(new DisplayCallback());
         try {
             client.connect();
-            client.subscribe(topic.getTopic(), 1);
+            client.subscribe(this.source.getTopic().getTopic(), 1);
             showUserMessage(STR_WAITING_READING, true);
         } catch (MqttException ex) {
             Logger.getLogger(MqttDisplay.class.getName()).log(Level.SEVERE, null, ex);
-            showUserMessage(STR_CONNECTION_ERROR + " id='" + clientId + "': " + ex.getMessage(), false);
+            showUserMessage(STR_CONNECTION_ERROR + " id='" + this.source.getClientId() + "': " + ex.getMessage(), false);
         }
     }
 
@@ -126,7 +129,22 @@ public abstract class MqttDisplay extends CustomComponent {
         layout.addComponents(title, chart);
     }
 
-    public abstract void messageArrived(String string, MqttMessage mm);
+    public void messageArrived(String id, MqttMessage message) {
+
+        if (gauge == null) {
+            gauge = createChart(getSource().getTopic().getName(), getSource().getTopic().getUnit(), getSource().getTopic().getMin(), getSource().getTopic().getMax());
+            showChart(gauge);
+            ((MasonryLayout)getParent()).markAsDirty();
+        }
+
+        // Update the series value
+        getSeries().forEach(s -> converter.convert((AbstractSeries) s, source.getTopic(), message));
+
+    }
+
+    protected List<Series> getSeries() {
+        return gauge.getConfiguration().getSeries();
+    }
 
     public void deliveryComplete(IMqttDeliveryToken imdt) {
         // Not needed?
@@ -136,6 +154,16 @@ public abstract class MqttDisplay extends CustomComponent {
         showUserMessage(STR_CONNECTION_LOST, false);
     }
 
+    /**
+     * Create a suitable chart for this display.
+     *
+     * @param name
+     * @param unit
+     * @param min
+     * @param max
+     * @return
+     */
+    protected abstract Chart createChart(String name, String unit, Number min, Number max);
 
     /* MQTT callback for wiring MQTT events to UI updates.    
      */
@@ -161,5 +189,23 @@ public abstract class MqttDisplay extends CustomComponent {
                 MqttDisplay.this.deliveryComplete(imdt);
             });
         }
+    }
+
+    /**
+     * Get the value of converter
+     *
+     * @return the value of converter
+     */
+    public MqttMessageParser getConverter() {
+        return converter;
+    }
+
+    /**
+     * Set the value of converter
+     *
+     * @param converter new value of converter
+     */
+    public void setConverter(MqttMessageParser converter) {
+        this.converter = converter;
     }
 }
