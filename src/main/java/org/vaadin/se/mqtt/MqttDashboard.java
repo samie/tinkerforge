@@ -78,11 +78,13 @@ public class MqttDashboard {
      * @param url
      * @param topic
      * @param parser
+     * @param colors
      */
-    public void add(Class<? extends MqttDisplay> displayClass, String url, MqttTopic topic, MqttMessageConverter parser) {
+    public void add(Class<? extends MqttDisplay> displayClass, String url, MqttTopic topic, MqttMessageConverter parser, String... colors) {
         try {
             Constructor<? extends MqttDisplay> constructor = displayClass.getConstructor(MqttDataSource.class, MqttMessageConverter.class);
             MqttDisplay instance = constructor.newInstance(new MqttDataSource(url, topic), parser);
+            instance.setColors(colors);
             add(instance);
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException ex) {
             Logger.getLogger(MqttDashboard.class.getName()).log(Level.SEVERE, null, ex);

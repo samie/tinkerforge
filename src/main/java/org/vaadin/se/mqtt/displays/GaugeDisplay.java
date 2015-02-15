@@ -11,6 +11,9 @@ import com.vaadin.addon.charts.model.DataSeries;
 import com.vaadin.addon.charts.model.YAxis;
 import com.vaadin.addon.charts.model.style.GradientColor;
 import com.vaadin.addon.charts.model.style.SolidColor;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Stream;
 import org.vaadin.se.mqtt.MqttDataSource;
 import org.vaadin.se.mqtt.MqttMessageConverter;
 
@@ -40,20 +43,11 @@ public class GaugeDisplay extends MqttDisplay {
         // Axis configuration
         cu.yAxis(null, min, max, -1);
 
-        // Colors 
-        YAxis.Stop stop1 = new YAxis.Stop(0.1f, SolidColor.DARKGRAY);
-        YAxis.Stop stop2 = new YAxis.Stop(0.5f, SolidColor.ORANGE);
-        YAxis.Stop stop3 = new YAxis.Stop(0.9f, SolidColor.YELLOW);
-        cu.stops(stop1, stop2, stop3);
+        // Apply colors 
+        cu.colors(getColors());
 
         return cu.draw();
     }
 
-    protected GradientColor getLinearGradient(String from, String toColor) {
-        GradientColor gradient = GradientColor.createLinear(0, 0, 0, 1);
-        gradient.addColorStop(0, new SolidColor(from));
-        gradient.addColorStop(1, new SolidColor(from));
-        return gradient;
-    }
 
 }

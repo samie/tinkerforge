@@ -1,11 +1,6 @@
 package org.vaadin.tinkerforge;
 
-import com.vaadin.addon.charts.model.AbstractSeries;
-import com.vaadin.addon.charts.model.DataSeries;
-import com.vaadin.addon.charts.model.DataSeriesItem;
-import com.vaadin.addon.charts.model.ListSeries;
 import java.nio.charset.Charset;
-import java.util.Date;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.vaadin.se.mqtt.MqttDashboard;
 import org.vaadin.se.mqtt.MqttDashboardUI;
@@ -35,15 +30,15 @@ public class TinkerForgeDashBoardUI extends MqttDashboardUI {
 
     // Special data parsers for the above messages
     private WetterstationDataParser CONVERTER = new WetterstationDataParser(3);
-    
+
     // Dashboard specification
     private final MqttDashboard dashboardSpec = new MqttDashboard("TinkerForge Wetterstation") {
         {
-            add(GaugeDisplay.class, MQTT_BROKER, LIGHT, CONVERTER);
-            add(SparklineDisplay.class, MQTT_BROKER, LIGHT, CONVERTER);
-            add(BarGaugeDisplay.class, MQTT_BROKER, TEMP, CONVERTER);
-            add(BarGaugeDisplay.class, MQTT_BROKER, HUMIDITY, CONVERTER);
-            add(SparklineDisplay.class, MQTT_BROKER, AIR_PRESSURE, CONVERTER);
+            add(GaugeDisplay.class, MQTT_BROKER, LIGHT, CONVERTER, "#BBBBBB", "#FF9900","#FFFF00");
+            add(SparklineDisplay.class, MQTT_BROKER, LIGHT, CONVERTER, "#0066FF");
+            add(BarGaugeDisplay.class, MQTT_BROKER, TEMP, CONVERTER, "#000099", "#66CCFF", "#FF3300");
+            add(BarGaugeDisplay.class, MQTT_BROKER, HUMIDITY, CONVERTER, "#000099", "#66CCFF");
+            add(SparklineDisplay.class, MQTT_BROKER, AIR_PRESSURE, CONVERTER,"#000099", "#66CCFF");
         }
 
     };

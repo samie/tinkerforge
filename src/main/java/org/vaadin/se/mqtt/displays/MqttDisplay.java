@@ -1,10 +1,8 @@
 package org.vaadin.se.mqtt.displays;
 
 import com.vaadin.addon.charts.Chart;
-import com.vaadin.addon.charts.model.AbstractSeries;
 import com.vaadin.addon.charts.model.DataSeries;
 import com.vaadin.addon.charts.model.DataSeriesItem;
-import com.vaadin.addon.charts.model.ListSeries;
 import com.vaadin.addon.charts.model.Series;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.CustomComponent;
@@ -54,6 +52,7 @@ public abstract class MqttDisplay extends CustomComponent {
     protected Chart chart;
     private MqttMessageConverter converter;
     private int historyLength;
+    private String[] colors;
 
     MqttDisplay(MqttDataSource source, int historyLength, MqttMessageConverter converter) {
         this.source = source;
@@ -208,6 +207,14 @@ public abstract class MqttDisplay extends CustomComponent {
             DataSeriesItem dataItem = new DataSeriesItem(new Date(), newValue);
             series.add(dataItem, true, series.getData().size() > historyLength);
         }
+    }
+
+    public void setColors(String... colors) {
+        this.colors = colors;
+    }
+
+    public String[] getColors() {
+        return this.colors;
     }
 
     /* MQTT callback for wiring MQTT events to UI updates.    

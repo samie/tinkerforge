@@ -19,7 +19,10 @@ import com.vaadin.addon.charts.model.Title;
 import com.vaadin.addon.charts.model.XAxis;
 import com.vaadin.addon.charts.model.YAxis;
 import com.vaadin.addon.charts.model.style.Color;
+import com.vaadin.addon.charts.model.style.GradientColor;
 import com.vaadin.addon.charts.model.style.SolidColor;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Some helpers to configure charts.
@@ -148,6 +151,7 @@ public class ChartUtils {
         series.setPlotOptions(go);
         return go;
     }
+
     public PlotOptionsSpline splineOptions(AbstractSeries series) {
         PlotOptionsSpline go = new PlotOptionsSpline();
         go.setPointWidth(null);
@@ -208,6 +212,49 @@ public class ChartUtils {
     public ChartUtils categories(String... categories) {
         conf.getxAxis().setCategories(categories);
         return this;
+    }
+
+    public ChartUtils colors(String[] colors) {
+        if (colors != null && colors.length > 1) {
+            // Gradient color spec
+            List<YAxis.Stop> stops = convertToColors(colors);
+            stops(stops.toArray(new YAxis.Stop[]{}));
+        }
+        if (colors != null && colors.length == 1) {
+            // Single color spec
+            getYAxis().setLineColor(new SolidColor(colors[0]));
+        }
+        return this;
+    }
+
+    /**
+     * Calculate stops for linear gradient based on colors from 10% to 90%.
+     *
+     * @param colors
+     * @return
+     */
+    private List<YAxis.Stop> convertToColors(String[] colors) {
+        List<YAxis.Stop> stops = new ArrayList<>(colors.length);
+        float stepSize = colors.length > 1 ? 0.8f / (float) (colors.length - 1) : 1f;
+        for (int i = 0; i < colors.length; i++) {
+            stops.add(new YAxis.Stop(0.1f + i * stepSize, new SolidColor(colors[i])));
+        }
+        ;
+        return stops;
+    }
+
+    /**
+     * Create linear gradient.
+     *
+     * @param from
+     * @param toColor
+     * @return
+     */
+    public GradientColor getLinearGradient(String from, String toColor) {
+        GradientColor gradient = GradientColor.createLinear(0, 0, 0, 1);
+        gradient.addColorStop(0, new SolidColor(from));
+        gradient.addColorStop(1, new SolidColor(from));
+        return gradient;
     }
 
 }

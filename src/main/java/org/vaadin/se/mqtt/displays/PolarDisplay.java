@@ -29,9 +29,11 @@ public class PolarDisplay extends MqttDisplay {
                 .polar()
                 .pane(-45, 315);
 
-        XAxis axis = new XAxis();
         cb.xAxis(null);
         cb.yAxis(null, min, max, -1);
+
+        // Apply colors 
+        cb.colors(getColors());
 
         PlotOptionsColumn opts = cb.columnOptions(series);
         return cb.draw();

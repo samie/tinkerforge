@@ -32,11 +32,8 @@ public class BarGaugeDisplay extends MqttDisplay {
         cu.columnOptions(series);
         cu.yAxis(null, min, max, Math.ceil((max.doubleValue() - min.doubleValue()) / 10));
 
-        // Colors 
-        YAxis.Stop stop1 = new YAxis.Stop(0.1f, SolidColor.DARKGRAY);
-        YAxis.Stop stop2 = new YAxis.Stop(0.5f, SolidColor.ORANGE);
-        YAxis.Stop stop3 = new YAxis.Stop(0.9f, SolidColor.YELLOW);
-        cu.stops(stop1, stop2, stop3);
+        // Apply colors 
+        cu.colors(getColors());
 
         return cu.draw();
     }

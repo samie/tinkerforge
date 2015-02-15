@@ -29,6 +29,9 @@ public class SparklineDisplay extends MqttDisplay {
         cb.xAxis(null);
         cb.yAxis(null, min, max, -1);
 
+        // Apply colors 
+        cb.colors(getColors());
+
         return cb.draw();
     }
 
