@@ -14,13 +14,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.vaadin.tinkerforge</groupId>
-            <artifactId>mqtt</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-
-        <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-server</artifactId>
             <exclusions>

@@ -5,7 +5,7 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.vaadin.tinkerforge.modules._utils.WaitForQ;
 import org.vaadin.tinkerforge.modules.communication.mqtt.MqttBuffer;
 import org.vaadin.tinkerforge.modules.communication.mqtt.MqttClientBuilder;
-import org.vaadin.tinkerforge.modules.communication.mqtt.Topic;
+import org.vaadin.tinkerforge.modules.communication.mqtt.MqttTopic;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -28,11 +28,11 @@ public class DemoDataPublisherMain {
                 .build();
         sender.connect();
 
-        Topic[] topics = Topic.values();
+        MqttTopic[] topics = MqttTopic.ALL;
 
-        Map<Topic, MqttBuffer> mqttBufferMap = new HashMap<>();
+        Map<MqttTopic, MqttBuffer> mqttBufferMap = new HashMap<>();
 
-        for (Topic topic : topics) {
+        for (MqttTopic topic : topics) {
             MqttBuffer buffer = new MqttBuffer()
                     .client(sender).topic(topic.getTopic())
                     .qos(QUALITY)
