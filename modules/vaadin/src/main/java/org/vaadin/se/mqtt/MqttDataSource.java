@@ -1,7 +1,5 @@
 package org.vaadin.se.mqtt;
 
-import com.vaadin.ui.UI;
-
 /**
  * Data source specifying the server, MQTT topic.
  *

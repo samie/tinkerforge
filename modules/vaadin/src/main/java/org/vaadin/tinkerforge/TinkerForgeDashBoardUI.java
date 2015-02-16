@@ -21,6 +21,7 @@ public class TinkerForgeDashBoardUI extends MqttDashboardUI {
     private static final String MQTT_BROKER = "tcp://127.0.0.1:1883";
 
     protected static final String MQTT_MESSAGE_CHARSET = "UTF-8";
+    public static final Charset CHARSET = Charset.forName(MQTT_MESSAGE_CHARSET);
 
     // Messages published by the TinkerFoge Wetterstation
     private static final MqttTopic LIGHT = new MqttTopic("TinkerForge/Wetterstation/Light", "Ambient Light", "Lux", 1, 1000);
@@ -67,30 +68,38 @@ public class TinkerForgeDashBoardUI extends MqttDashboardUI {
             if (splitted == null) {
                 return; // Got nothing
             }
+//TODO DataValue -> JSON -> DataValue
+//            // Parse a
+//            Number[] numbers = new Number[splitted.length];
+//            for (int i = 0; i < splitted.length; i++) {
+//                try {
+//                    numbers[i] = Double.parseDouble(splitted[i]);
+//                } catch (Exception e) {
+//                    System.err.println("Failed to parse message field=" + i + ", topic=" + topic.getTopic());
+//                }
+//            }
+//
+//            // Pick only requested fields
+//            Number[] values = new Number[fields.length];
+//            for (int i = 0; i < fields.length; i++) {
+//                if (fields[i] >= values.length && fields[i] < 0) {
+//                    System.err.println("Missing field in received message field=" + fields[i] + ", topic=" + topic.getTopic());
+//                    return;
+//                } else {
+//                    values[i] = numbers[fields[i]];
+//                }
+//            }
 
-            // Parse a
-            Number[] numbers = new Number[splitted.length];
-            for (int i = 0; i < splitted.length; i++) {
-                try {
-                    numbers[i] = Double.parseDouble(splitted[i]);
-                } catch (Exception e) {
-                    System.err.println("Failed to parse message field=" + i + ", topic=" + topic.getTopic());
-                }
-            }
+            //one Message == one TimeStamp and one Value
+            String timestamp = splitted[0];
+            String value = splitted[1];
 
-            // Pick only requested fields
-            Number[] values = new Number[fields.length];
-            for (int i = 0; i < fields.length; i++) {
-                if (fields[i] >= values.length && fields[i] < 0) {
-                    System.err.println("Missing field in received message field=" + fields[i] + ", topic=" + topic.getTopic());
-                    return;
-                } else {
-                    values[i] = numbers[fields[i]];
-                }
-            }
+            double aDouble = Double.parseDouble(value);
+            display.updateValue(aDouble);
+
 
             // Update the display char data
-            display.updateValue(values);
+//            display.updateValue(values);
 
         }
     }
@@ -98,8 +107,8 @@ public class TinkerForgeDashBoardUI extends MqttDashboardUI {
     private static String[] payloadToString(MqttMessage mm) {
         byte[] payload = mm.getPayload();
         try {
-            return new String(payload, Charset.forName(MQTT_MESSAGE_CHARSET)).split(":");
-        } catch (Exception e) {
+            return new String(payload, CHARSET).intern().split(";");
+        } catch (Exception ignored) {
         }
         return null;
     }

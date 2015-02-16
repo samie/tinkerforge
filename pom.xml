@@ -145,18 +145,13 @@
             </dependency>
 
 
-
             <!--testing-->
         </dependencies>
 
     </dependencyManagement>
 
-
     <dependencies>
-
-
     </dependencies>
-
 
 
     <repositories>
@@ -170,16 +165,16 @@
         </repository>
 
         <!--mqtt server -->
-            <repository>
-                <id>moquette-broker</id>
-                <url>http://dl.bintray.com/andsel/maven/</url>
-                <releases>
-                    <enabled>true</enabled>
-                </releases>
-                <snapshots>
-                    <enabled>false</enabled>
-                </snapshots>
-            </repository>
+        <repository>
+            <id>moquette-broker</id>
+            <url>http://dl.bintray.com/andsel/maven/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
         <!--mqtt server -->
     </repositories>
 
@@ -189,6 +184,24 @@
             <url>http://virit.in/maven2</url>
         </pluginRepository>
     </pluginRepositories>
+
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <version>3.3</version>
+
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <version>3.0.0</version>
+            </plugin>
+
+        </plugins>
+    </reporting>
 
 
     <profiles>

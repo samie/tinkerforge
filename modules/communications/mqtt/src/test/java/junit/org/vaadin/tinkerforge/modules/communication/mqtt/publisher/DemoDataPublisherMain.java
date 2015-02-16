@@ -54,7 +54,7 @@ public class DemoDataPublisherMain {
                 @Override
                 public void run() {
                     double v = Math.round(100.0 * generator.nextValue()) / 100.0;
-                    mqttBuffer.sendAsync(LocalDateTime.now() + ":" + v + "");
+                    mqttBuffer.sendAsync(LocalDateTime.now() + ";" + v + "");
                 }
             }, 0, 2_000);
         });

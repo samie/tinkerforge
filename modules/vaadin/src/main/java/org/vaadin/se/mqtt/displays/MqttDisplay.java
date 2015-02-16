@@ -140,7 +140,7 @@ public abstract class MqttDisplay extends CustomComponent {
         if (chart == null) {
             chart = createChart(getSource().getTopic().getName(), getSource().getTopic().getUnit(), getSource().getTopic().getMin(), getSource().getTopic().getMax());
             showChart(chart);
-            ((MasonryLayout) getParent()).markAsDirty();
+            getParent().markAsDirty();
         }
 
         // Update the display values
@@ -177,10 +177,8 @@ public abstract class MqttDisplay extends CustomComponent {
      * @param values
      */
     public void updateValue(Number... values) {
-        getSeries().forEach(s -> {
-            IntStream.range(0, values.length).forEach(idx
-                    -> updateSeries((DataSeries) s, idx, values[idx], 0 == historyLength));
-        });
+        getSeries().forEach(s -> IntStream.range(0, values.length).forEach(idx
+                -> updateSeries((DataSeries) s, idx, values[idx], 0 == historyLength)));
     }
 
     /**
@@ -223,23 +221,17 @@ public abstract class MqttDisplay extends CustomComponent {
 
         @Override
         public void connectionLost(Throwable t) {
-            getUI().access(() -> {
-                MqttDisplay.this.connectionLost(t.getMessage());
-            });
+            getUI().access(() -> MqttDisplay.this.connectionLost(t.getMessage()));
         }
 
         @Override
         public void messageArrived(String string, MqttMessage mm) throws Exception {
-            getUI().access(() -> {
-                MqttDisplay.this.messageArrived(string, mm);
-            });
+            getUI().access(() -> MqttDisplay.this.messageArrived(string, mm));
         }
 
         @Override
         public void deliveryComplete(IMqttDeliveryToken imdt) {
-            getUI().access(() -> {
-                MqttDisplay.this.deliveryComplete(imdt);
-            });
+            getUI().access(() -> MqttDisplay.this.deliveryComplete(imdt));
         }
     }
 

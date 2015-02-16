@@ -19,12 +19,10 @@ import org.vaadin.viritin.fields.TypedSelect;
  */
 public class AddNewDataSource extends CustomComponent {
 
-    List<Class<? extends MqttDisplay>> displayTypes = Arrays.asList(new Class[]{
-        BarGaugeDisplay.class,
-        GaugeDisplay.class,
-        SparklineDisplay.class,
-        PolarDisplay.class
-    });
+    List<Class<? extends MqttDisplay>> displayTypes = Arrays.asList(BarGaugeDisplay.class,
+            GaugeDisplay.class,
+            SparklineDisplay.class,
+            PolarDisplay.class);
     VerticalLayout baseLayout = new VerticalLayout();
     MTextField url = new MTextField("MQTT server URL", "tcp://mqtt.virit.in:1883");
     MTextField topic = new MTextField("Message topic", "TinkerForge/Wetterstation/Light");
