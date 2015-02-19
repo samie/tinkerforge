@@ -1,7 +1,10 @@
 package org.vaadin.tinkerforge;
 
 import java.nio.charset.Charset;
+
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.vaadin.model.SensorValue;
+import org.vaadin.model.converter.json.SensorValueJsonConverter;
 import org.vaadin.se.mqtt.MqttDashboard;
 import org.vaadin.se.mqtt.MqttDashboardUI;
 import org.vaadin.se.mqtt.MqttMessageConverter;
@@ -30,17 +33,17 @@ public class TinkerForgeDashBoardUI extends MqttDashboardUI {
     private static final MqttTopic AIR_PRESSURE = new MqttTopic("TinkerForge/Wetterstation/Air", "Air Pressure", "mBar", 500, 1500);
 
     // Special data parsers for the above messages
-    private WetterstationDataParser CONVERTER = new WetterstationDataParser(3);
+    private WetterstationDataParser CONVERTER = new WetterstationDataParser();
 
     // Dashboard specification
     private final MqttDashboard dashboardSpec = new MqttDashboard("TinkerForge Wetterstation") {
         {
-            add(GaugeDisplay.class, MQTT_BROKER, LIGHT, CONVERTER, "#BBBBBB", "#FF9900","#FFFF00");
+            add(GaugeDisplay.class, MQTT_BROKER, LIGHT, CONVERTER, "#BBBBBB", "#FF9900", "#FFFF00");
             add(SparklineDisplay.class, MQTT_BROKER, LIGHT, CONVERTER, "#0066FF");
             add(BarGaugeDisplay.class, MQTT_BROKER, TEMP, CONVERTER, "#000099", "#66CCFF", "#FF3300");
             add(SparklineDisplay.class, MQTT_BROKER, TEMP, CONVERTER, "#000099");
             add(BarGaugeDisplay.class, MQTT_BROKER, HUMIDITY, CONVERTER, "#000099", "#66CCFF");
-            add(SparklineDisplay.class, MQTT_BROKER, AIR_PRESSURE, CONVERTER,"#000099", "#66CCFF");
+            add(SparklineDisplay.class, MQTT_BROKER, AIR_PRESSURE, CONVERTER, "#000099", "#66CCFF");
         }
 
     };
@@ -52,65 +55,22 @@ public class TinkerForgeDashBoardUI extends MqttDashboardUI {
 
     /**
      * Convert MQTT messages to Chart values.
-     *
      */
     public static class WetterstationDataParser implements MqttMessageConverter {
 
-        private final int[] fields;
+        private final SensorValueJsonConverter converter = new SensorValueJsonConverter();
 
-        public WetterstationDataParser(int... messageField) {
-            this.fields = messageField;
-        }
+        public WetterstationDataParser() { /** variable ?? **/ }
 
         @Override
         public void convert(final MqttDisplay display, final MqttTopic topic, final MqttMessage message) {
-            String[] splitted = payloadToString(message);
-            if (splitted == null) {
-                return; // Got nothing
-            }
-//TODO DataValue -> JSON -> DataValue
-//            // Parse a
-//            Number[] numbers = new Number[splitted.length];
-//            for (int i = 0; i < splitted.length; i++) {
-//                try {
-//                    numbers[i] = Double.parseDouble(splitted[i]);
-//                } catch (Exception e) {
-//                    System.err.println("Failed to parse message field=" + i + ", topic=" + topic.getTopic());
-//                }
-//            }
-//
-//            // Pick only requested fields
-//            Number[] values = new Number[fields.length];
-//            for (int i = 0; i < fields.length; i++) {
-//                if (fields[i] >= values.length && fields[i] < 0) {
-//                    System.err.println("Missing field in received message field=" + fields[i] + ", topic=" + topic.getTopic());
-//                    return;
-//                } else {
-//                    values[i] = numbers[fields[i]];
-//                }
-//            }
-
-            //one Message == one TimeStamp and one Value
-            String timestamp = splitted[0];
-            String value = splitted[1];
-
-            double aDouble = Double.parseDouble(value);
-            display.updateValue(aDouble);
-
-
-            // Update the display char data
-//            display.updateValue(values);
-
+            byte[] payload = message.getPayload();
+            SensorValue sensorValue = converter.fromJson(new String(payload, CHARSET));
+//            final LocalDateTime localDateTime = sensorValue.getLocalDateTime();
+//            double v = Math.round(100.0 * sensorValue.getRawValue()) / 100.0; //TODO depends on Sensor if /10 or /100 or /1000 ..
+            double v = sensorValue.getRawValue() / 100.0;
+            display.updateValue(v);
         }
-    }
-
-    private static String[] payloadToString(MqttMessage mm) {
-        byte[] payload = mm.getPayload();
-        try {
-            return new String(payload, CHARSET).intern().split(";");
-        } catch (Exception ignored) {
-        }
-        return null;
     }
 
 }

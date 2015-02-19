@@ -2,6 +2,8 @@ package junit.org.vaadin.tinkerforge.modules.communication.mqtt.publisher;
 
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
+import org.vaadin.model.SensorValue;
+import org.vaadin.model.converter.json.SensorValueJsonConverter;
 import org.vaadin.tinkerforge.modules._utils.WaitForQ;
 import org.vaadin.tinkerforge.modules.communication.mqtt.MqttBuffer;
 import org.vaadin.tinkerforge.modules.communication.mqtt.MqttClientBuilder;
@@ -41,23 +43,25 @@ public class DemoDataPublisherMain {
         }
 
 
-        Timer timer = new Timer();
-
-        mqttBufferMap.forEach((topic, mqttBuffer) -> {
+        final Timer timer = new Timer();
+        mqttBufferMap.forEach((topic, mqttBuffer) -> timer.scheduleAtFixedRate(new TimerTask() {
             final DemoDataFunctionGenerator generator = new DemoDataFunctionGenerator.Builder()
                     .valueMin(topic.getMin().intValue())
                     .valueMax(topic.getMax().intValue())
                     .maxCount(100)
                     .stepSize(20)
                     .build();
-            timer.scheduleAtFixedRate(new TimerTask() {
-                @Override
-                public void run() {
-                    double v = Math.round(100.0 * generator.nextValue()) / 100.0;
-                    mqttBuffer.sendAsync(LocalDateTime.now() + ";" + v + "");
-                }
-            }, 0, 2_000);
-        });
+            private  SensorValueJsonConverter converter = new SensorValueJsonConverter();
+            final SensorValue.Builder sensorValueBuilder = SensorValue.newBuilder()
+                    .deviceType(topic.getName());
+            @Override
+            public void run() {
+                double v = Math.round(100.0 * generator.nextValue()) / 100.0;
+                int rawValue = (int) (v * 100);
+                SensorValue sensorValue = sensorValueBuilder.localDateTime(LocalDateTime.now()).rawValue(rawValue).build();
+                mqttBuffer.sendAsync(converter.toJson(sensorValue));
+            }
+        }, 0, 2_000));
 
 
 

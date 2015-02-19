@@ -64,8 +64,17 @@
             <artifactId>masonry-addon</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+        </dependency>
 
 
+        <!--modules -->
+        <dependency>
+            <groupId>org.vaadin.tinkerforge</groupId>
+            <artifactId>tinkerforge</artifactId>
+        </dependency>
 
     </dependencies>
 
