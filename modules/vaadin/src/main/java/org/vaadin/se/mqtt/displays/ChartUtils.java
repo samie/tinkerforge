@@ -7,7 +7,6 @@ import com.vaadin.addon.charts.model.ChartModel;
 import com.vaadin.addon.charts.model.ChartType;
 import com.vaadin.addon.charts.model.Configuration;
 import com.vaadin.addon.charts.model.Labels;
-import com.vaadin.addon.charts.model.ListSeries;
 import com.vaadin.addon.charts.model.Marker;
 import com.vaadin.addon.charts.model.Pane;
 import com.vaadin.addon.charts.model.PlotOptionsColumn;
@@ -42,8 +41,7 @@ public class ChartUtils {
     }
 
     public static ChartUtils build(String title, ChartType type, boolean showLegend) {
-        ChartUtils cu = new ChartUtils(new Chart(type)).title(title).legend(false);
-        return cu;
+        return new ChartUtils(new Chart(type)).title(title).legend(false);
     }
 
     public ChartUtils legend(boolean showLegend) {
@@ -218,7 +216,7 @@ public class ChartUtils {
         if (colors != null && colors.length > 1) {
             // Gradient color spec
             List<YAxis.Stop> stops = convertToColors(colors);
-            stops(stops.toArray(new YAxis.Stop[]{}));
+            stops(stops.toArray(new YAxis.Stop[stops.size()]));
         }
         if (colors != null && colors.length == 1) {
             // Single color spec
@@ -239,7 +237,6 @@ public class ChartUtils {
         for (int i = 0; i < colors.length; i++) {
             stops.add(new YAxis.Stop(0.1f + i * stepSize, new SolidColor(colors[i])));
         }
-        ;
         return stops;
     }
 

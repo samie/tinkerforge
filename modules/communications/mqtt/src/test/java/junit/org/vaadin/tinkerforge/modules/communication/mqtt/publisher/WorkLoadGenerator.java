@@ -28,8 +28,7 @@ public class WorkLoadGenerator {
         }
 
         final UnivariateInterpolator interpolator = new SplineInterpolator();
-        final UnivariateFunction function = interpolator.interpolate(valueArrayX, valueArrayY);
-        return function;
+        return interpolator.interpolate(valueArrayX, valueArrayY);
     }
 
     public List<Double> generate(int stepSize, final List<Integer> v) {

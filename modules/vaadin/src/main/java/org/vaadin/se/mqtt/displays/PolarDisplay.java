@@ -4,7 +4,6 @@ import com.vaadin.addon.charts.Chart;
 import com.vaadin.addon.charts.model.ChartType;
 import com.vaadin.addon.charts.model.DataSeries;
 import com.vaadin.addon.charts.model.PlotOptionsColumn;
-import com.vaadin.addon.charts.model.XAxis;
 import org.vaadin.se.mqtt.MqttDataSource;
 import org.vaadin.se.mqtt.MqttMessageConverter;
 

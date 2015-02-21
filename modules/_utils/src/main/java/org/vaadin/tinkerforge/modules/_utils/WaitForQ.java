@@ -28,7 +28,7 @@ import java.util.List;
  */
 public class WaitForQ {
 
-  public static interface ShutDownAction{ void execute() ; }
+  public interface ShutDownAction{ void execute() ; }
 
   private List<ShutDownAction> shutDownActions = new ArrayList<>();
   public void addShutDownAction(ShutDownAction action){
@@ -41,7 +41,8 @@ public class WaitForQ {
     final Thread t = new Thread(() -> {
       System.out.println("press Q THEN ENTER to terminate");
       int quit = 0;
-      while (true) {
+        //noinspection LoopStatementThatDoesntLoop
+        while (true) {
         try {
           Thread.sleep(10_000);
           String msg = null;

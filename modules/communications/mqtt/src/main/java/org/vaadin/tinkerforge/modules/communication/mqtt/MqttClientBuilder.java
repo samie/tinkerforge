@@ -58,8 +58,7 @@ public class MqttClientBuilder {
     return this;
   }
   public MqttClientBuilder clientUIDGenerated() {
-    String substring = UUID.randomUUID().toString().replace("-", "").substring(0, 22);
-    this.clientUID = substring;
+      this.clientUID = UUID.randomUUID().toString().replace("-", "").substring(0, 22);
     System.out.println("clientUID = " + clientUID);
     return this;
   }

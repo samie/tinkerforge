@@ -21,6 +21,14 @@
 
         <dependencies>
             <dependency>
+                <groupId>org.vaadin.tinkerforge</groupId>
+                <artifactId>tinkerforge</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+
+
+            <dependency>
                 <groupId>com.vaadin</groupId>
                 <artifactId>vaadin-server</artifactId>
                 <version>${vaadin.version}</version>
@@ -104,6 +112,16 @@
             </dependency>
             <!--tinkerforge-->
 
+            <!--JSON processing-->
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>2.3.1</version>
+            </dependency>
+
+
+
+
 
             <!--testing-->
 
@@ -145,18 +163,17 @@
             </dependency>
 
 
-
             <!--testing-->
         </dependencies>
 
     </dependencyManagement>
 
-
     <dependencies>
-
-
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
     </dependencies>
-
 
 
     <repositories>
@@ -170,16 +187,16 @@
         </repository>
 
         <!--mqtt server -->
-            <repository>
-                <id>moquette-broker</id>
-                <url>http://dl.bintray.com/andsel/maven/</url>
-                <releases>
-                    <enabled>true</enabled>
-                </releases>
-                <snapshots>
-                    <enabled>false</enabled>
-                </snapshots>
-            </repository>
+        <repository>
+            <id>moquette-broker</id>
+            <url>http://dl.bintray.com/andsel/maven/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
         <!--mqtt server -->
     </repositories>
 
@@ -189,6 +206,24 @@
             <url>http://virit.in/maven2</url>
         </pluginRepository>
     </pluginRepositories>
+
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <version>3.3</version>
+
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <version>3.0.0</version>
+            </plugin>
+
+        </plugins>
+    </reporting>
 
 
     <profiles>

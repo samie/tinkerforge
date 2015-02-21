@@ -8,12 +8,6 @@ package org.vaadin.se.mqtt.displays;
 import com.vaadin.addon.charts.Chart;
 import com.vaadin.addon.charts.model.ChartType;
 import com.vaadin.addon.charts.model.DataSeries;
-import com.vaadin.addon.charts.model.YAxis;
-import com.vaadin.addon.charts.model.style.GradientColor;
-import com.vaadin.addon.charts.model.style.SolidColor;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Stream;
 import org.vaadin.se.mqtt.MqttDataSource;
 import org.vaadin.se.mqtt.MqttMessageConverter;
 

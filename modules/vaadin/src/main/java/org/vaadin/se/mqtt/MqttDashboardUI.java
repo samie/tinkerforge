@@ -42,9 +42,7 @@ public abstract class MqttDashboardUI extends UI {
 
         MqttDashboard dash = getDashboardSpec();
         title.setValue(dash.getTitle());
-        for (MqttDisplay display : dash.getDisplays()) {
-            columnLayout.addComponent(display);
-        }
+        dash.getDisplays().forEach(columnLayout::addComponent);
 
     }
 
