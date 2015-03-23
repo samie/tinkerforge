@@ -1,18 +1,14 @@
 package org.vaadin.tinkerforge;
 
 import java.nio.charset.Charset;
+import org.vaadin.mqtt.ui.MqttDashboard;
+import org.vaadin.mqtt.ui.MqttDashboardUI;
+import org.vaadin.mqtt.ui.MqttTopic;
 
-import org.eclipse.paho.client.mqttv3.MqttMessage;
-import org.vaadin.model.SensorValue;
-import org.vaadin.model.converter.json.SensorValueJsonConverter;
-import org.vaadin.se.mqtt.MqttDashboard;
-import org.vaadin.se.mqtt.MqttDashboardUI;
-import org.vaadin.se.mqtt.MqttMessageConverter;
-import org.vaadin.se.mqtt.MqttTopic;
-import org.vaadin.se.mqtt.displays.GaugeDisplay;
-import org.vaadin.se.mqtt.displays.BarGaugeDisplay;
-import org.vaadin.se.mqtt.displays.MqttDisplay;
-import org.vaadin.se.mqtt.displays.SparklineDisplay;
+import org.vaadin.mqtt.ui.converters.WetterstationDataParser;
+import org.vaadin.mqtt.ui.displays.GaugeDisplay;
+import org.vaadin.mqtt.ui.displays.BarGaugeDisplay;
+import org.vaadin.mqtt.ui.displays.SparklineDisplay;
 
 /**
  * Specialized MQTT Dashboard for TinkerForge sensors.
@@ -52,25 +48,4 @@ public class TinkerForgeDashBoardUI extends MqttDashboardUI {
     public MqttDashboard getDashboardSpec() {
         return this.dashboardSpec;
     }
-
-    /**
-     * Convert MQTT messages to Chart values.
-     */
-    public static class WetterstationDataParser implements MqttMessageConverter {
-
-        private final SensorValueJsonConverter converter = new SensorValueJsonConverter();
-
-        public WetterstationDataParser() { /** variable ?? **/ }
-
-        @Override
-        public void convert(final MqttDisplay display, final MqttTopic topic, final MqttMessage message) {
-            byte[] payload = message.getPayload();
-            SensorValue sensorValue = converter.fromJson(new String(payload, CHARSET));
-//            final LocalDateTime localDateTime = sensorValue.getLocalDateTime();
-//            double v = Math.round(100.0 * sensorValue.getRawValue()) / 100.0; //TODO depends on Sensor if /10 or /100 or /1000 ..
-            double v = sensorValue.getRawValue() / 100.0;
-            display.updateValue(v);
-        }
-    }
-
 }

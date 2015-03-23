@@ -1,12 +1,14 @@
-package org.vaadin.se.mqtt.displays;
+package org.vaadin.mqtt.ui.displays;
 
 import com.vaadin.addon.charts.Chart;
 import com.vaadin.addon.charts.model.ChartType;
 import com.vaadin.addon.charts.model.DataSeries;
+import com.vaadin.addon.charts.model.PlotOptionsColumn;
+import com.vaadin.addon.charts.model.YAxis;
 import com.vaadin.addon.charts.model.style.GradientColor;
 import com.vaadin.addon.charts.model.style.SolidColor;
-import org.vaadin.se.mqtt.MqttDataSource;
-import org.vaadin.se.mqtt.MqttMessageConverter;
+import org.vaadin.mqtt.ui.MqttDataSource;
+import org.vaadin.mqtt.ui.MqttMessageConverter;
 
 /**
  * Linear gauge display for MQTT client.
@@ -22,25 +24,18 @@ public class BarGaugeDisplay extends MqttDisplay {
     @Override
     protected Chart createChart(String name, String unit, Number min, Number max) {
         final DataSeries series = new DataSeries(name + " (" + unit + ")");
-
         final ChartUtils cu = ChartUtils.build(null, ChartType.COLUMN, false).
                 size(SIZE_X_PX, SIZE_Y_PX).series(series);
 
         // Axis configuration
         cu.xAxis(null);
-        cu.columnOptions(series);
+        PlotOptionsColumn opt = cu.columnOptions(series);        
+        opt.setThreshold(min);
         cu.yAxis(null, min, max, Math.ceil((max.doubleValue() - min.doubleValue()) / 10));
 
         // Apply colors 
         cu.colors(getColors());
 
         return cu.draw();
-    }
-
-    protected GradientColor getLinearGradient(String from, String toColor) {
-        GradientColor gradient = GradientColor.createLinear(0, 0, 0, 1);
-        gradient.addColorStop(0, new SolidColor(from));
-        gradient.addColorStop(1, new SolidColor(from));
-        return gradient;
     }
 }

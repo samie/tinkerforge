@@ -1,10 +1,10 @@
-package org.vaadin.se.mqtt.displays;
+package org.vaadin.mqtt.ui.displays;
 
 import com.vaadin.addon.charts.Chart;
 import com.vaadin.addon.charts.model.ChartType;
 import com.vaadin.addon.charts.model.DataSeries;
-import org.vaadin.se.mqtt.MqttDataSource;
-import org.vaadin.se.mqtt.MqttMessageConverter;
+import org.vaadin.mqtt.ui.MqttDataSource;
+import org.vaadin.mqtt.ui.MqttMessageConverter;
 
 /**
  * Gauge display for MQTT client.

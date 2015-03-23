@@ -1,4 +1,4 @@
-package org.vaadin.se.mqtt;
+package org.vaadin.mqtt.ui;
 
 import com.vaadin.annotations.Push;
 
@@ -12,7 +12,7 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
 
 import org.vaadin.alump.masonry.MasonryLayout;
-import org.vaadin.se.mqtt.displays.MqttDisplay;
+import org.vaadin.mqtt.ui.displays.MqttDisplay;
 
 @Theme("valo")
 @SuppressWarnings("serial")
@@ -42,7 +42,9 @@ public abstract class MqttDashboardUI extends UI {
 
         MqttDashboard dash = getDashboardSpec();
         title.setValue(dash.getTitle());
-        dash.getDisplays().forEach(columnLayout::addComponent);
+        for (MqttComponent c : dash.getComponents()) {
+            columnLayout.addComponent(c);
+        }
 
     }
 

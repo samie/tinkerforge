@@ -1,13 +1,9 @@
-package org.vaadin.se.mqtt.displays;
+package org.vaadin.mqtt.ui.displays;
 
 import com.vaadin.addon.charts.Chart;
 import com.vaadin.addon.charts.model.DataSeries;
 import com.vaadin.addon.charts.model.DataSeriesItem;
 import com.vaadin.addon.charts.model.Series;
-import com.vaadin.ui.CssLayout;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.themes.ValoTheme;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
@@ -18,67 +14,57 @@ import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
-import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.vaadin.alump.masonry.MasonryLayout;
-import org.vaadin.se.mqtt.MqttDataSource;
-import org.vaadin.se.mqtt.MqttMessageConverter;
+import org.vaadin.mqtt.ui.MqttDataSource;
+import org.vaadin.mqtt.ui.MqttMessageConverter;
+import org.vaadin.mqtt.ui.MqttComponent;
 
 /**
  * Abstract parent class for displays with single MQTT client / topic.
  *
  * @author Sami Ekblad
  */
-public abstract class MqttDisplay extends CustomComponent {
-
-    protected static final String SIZE_X_PX = "275px";
-    protected static final String SIZE_Y_PX = "275px";
-    protected static final String SIZE_Y_025_PX = "65px";
+public abstract class MqttDisplay extends MqttComponent {
 
     protected static String COLOR_PRIMARY = "#339";
     protected static String COLOR_SECONDARY = "#EEE";
     protected static String COLOR_BACKGROUND = "#FFF";
 
-    private MqttClient client;
-
-    private final CssLayout layout = new CssLayout();
-    private final Label title = new Label("");
-
-    private final String STR_NOT_CONNECTED = "Not connected";
-    private final String STR_WAITING_READING = "Waiting for reading...";
-    private final String STR_CONNECTION_ERROR = "Connection failed to";
-    private final String STR_CONNECTION_LOST = "No connection";
-    private final MqttDataSource source;
-
     protected Chart chart;
     private MqttMessageConverter converter;
-    private int historyLength;
+    int historyLength;
     private String[] colors;
 
     MqttDisplay(MqttDataSource source, int historyLength, MqttMessageConverter converter) {
-        this.source = source;
+        super(source, source.getTopic().getTitle());
         this.historyLength = historyLength;
         this.converter = converter;
-        layout.setStyleName(source.getTopic().getName().toLowerCase());
-        title.setStyleName(ValoTheme.LABEL_H3);
-        title.setValue(source.getTopic().getName());
-        setCompositionRoot(layout);
-        showUserMessage(STR_NOT_CONNECTED, true);
-    }
-
-    public MqttDataSource getSource() {
-        return source;
-    }
-
-    public MqttClient getClient() {
-        return client;
     }
 
     @Override
-    public void detach() {
-        super.detach();
+    public void connect() {
+        MqttClient client = getClient();
+        client.setCallback(new DisplayCallback());
         try {
+            if (getSource().getOptions() != null) {
+                client.connect(getSource().getOptions());
+            } else {
+                client.connect();
+            }
+            client.subscribe(this.getSource().getTopic().getId(), 1);
+            showUserMessage(STR_WAITING_READING, true);
+        } catch (MqttException ex) {
+            Logger.getLogger(MqttDisplay.class.getName()).log(Level.SEVERE, null, ex);
+            showUserMessage(STR_CONNECTION_ERROR + " id='" + this.getSource().getClientId() + "': " + ex.getMessage(), false);
+        }
+    }
+
+    @Override
+    public void disconnect() {
+        try {
+            MqttClient client = getClient();
             if (client != null) {
-                client.unsubscribe(source.getTopic().getTopic());
+                client.unsubscribe(getSource().getTopic().getId());
                 client.close();
             }
         } catch (MqttException ex) {
@@ -86,65 +72,25 @@ public abstract class MqttDisplay extends CustomComponent {
         }
     }
 
-    @Override
-    public void attach() {
-        super.attach();
-
-        // Lazy initialization of MQTT client
-        if (client == null) {
-            try {
-                this.client = new MqttClient(this.source.getUrl(), this.source.getClientId(), new MemoryPersistence());
-            } catch (MqttException ex) {
-                Logger.getLogger(MqttDisplay.class.getName()).log(Level.SEVERE, null, ex);
-                showUserMessage(STR_CONNECTION_ERROR + " id='" + this.source.getClientId() + "': " + ex.getMessage(), false);
-            }
-        }
-
-        client.setCallback(new DisplayCallback());
-        try {
-            client.connect();
-            client.subscribe(this.source.getTopic().getTopic(), 1);
-            showUserMessage(STR_WAITING_READING, true);
-        } catch (MqttException ex) {
-            Logger.getLogger(MqttDisplay.class.getName()).log(Level.SEVERE, null, ex);
-            showUserMessage(STR_CONNECTION_ERROR + " id='" + this.source.getClientId() + "': " + ex.getMessage(), false);
-        }
-    }
-
-    /**
-     * Show a message instead of the graph.
-     *
-     * @param message
-     * @param isSucsess Error messages are formatted differently from success
-     * messages.
-     */
-    public final void showUserMessage(final String message, boolean isSucsess) {
-        layout.removeAllComponents();
-        Label l = new Label(message);
-        l.setStyleName(isSucsess ? ValoTheme.LABEL_SUCCESS : ValoTheme.LABEL_FAILURE);
-        layout.addComponents(title, l);
-    }
-
     /**
      * Show the chart.
      *
-     * @param chart
      */
-    public void showChart(Chart chart) {
-        layout.removeAllComponents();
-        layout.addComponents(title, chart);
+    public void showChart() {
+        removeAllComponents();
+        addComponents(chart);
     }
 
     public void messageArrived(String id, MqttMessage message) {
 
         if (chart == null) {
-            chart = createChart(getSource().getTopic().getName(), getSource().getTopic().getUnit(), getSource().getTopic().getMin(), getSource().getTopic().getMax());
-            showChart(chart);
-            getParent().markAsDirty();
+            chart = createChart(getSource().getTopic().getTitle(), getSource().getTopic().getUnit(), getSource().getTopic().getMin(), getSource().getTopic().getMax());
+            showChart();
+            ((MasonryLayout) getParent()).markAsDirty();
         }
 
         // Update the display values
-        converter.convert(this, source.getTopic(), message);
+        converter.convert(this, id, message);
 
     }
 
@@ -177,10 +123,10 @@ public abstract class MqttDisplay extends CustomComponent {
      * @param values
      */
     public void updateValue(Number... values) {
-        getSeries()
-                .forEach(s -> IntStream.range(0, values.length)
-                        .forEach(idx -> updateSeries((DataSeries) s, idx, values[idx], 0 == historyLength)));
-
+        getSeries().forEach(s -> {
+            IntStream.range(0, values.length).forEach(idx
+                    -> updateSeries((DataSeries) s, idx, values[idx], 0 == historyLength));
+        });
     }
 
     /**
@@ -223,17 +169,23 @@ public abstract class MqttDisplay extends CustomComponent {
 
         @Override
         public void connectionLost(Throwable t) {
-            getUI().access(() -> MqttDisplay.this.connectionLost(t.getMessage()));
+            getUI().access(() -> {
+                MqttDisplay.this.connectionLost(t.getMessage());
+            });
         }
 
         @Override
         public void messageArrived(String string, MqttMessage mm) throws Exception {
-            getUI().access(() -> MqttDisplay.this.messageArrived(string, mm));
+            getUI().access(() -> {
+                MqttDisplay.this.messageArrived(string, mm);
+            });
         }
 
         @Override
         public void deliveryComplete(IMqttDeliveryToken imdt) {
-            getUI().access(() -> MqttDisplay.this.deliveryComplete(imdt));
+            getUI().access(() -> {
+                MqttDisplay.this.deliveryComplete(imdt);
+            });
         }
     }
 

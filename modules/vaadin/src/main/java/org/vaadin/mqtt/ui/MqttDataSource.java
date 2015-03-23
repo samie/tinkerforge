@@ -1,4 +1,6 @@
-package org.vaadin.se.mqtt;
+package org.vaadin.mqtt.ui;
+
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 
 /**
  * Data source specifying the server, MQTT topic.
@@ -10,11 +12,17 @@ public class MqttDataSource {
     private MqttTopic topic;
     private String url;
     private static long counter;
+    private MqttConnectOptions options;
 
-    public MqttDataSource(String url, String clientId, MqttTopic topic) {
+    public MqttDataSource(String url, String clientId, MqttConnectOptions opts, MqttTopic topic) {
         this.topic = topic;
         this.url = url;
+        this.options = opts;
         this.clientId = clientId;
+    }
+
+    public MqttDataSource(String url, String clientId, MqttTopic topic) {
+        this(url, clientId, null, topic);
     }
 
     /**
@@ -81,6 +89,14 @@ public class MqttDataSource {
      */
     public void setClientId(String clientId) {
         this.clientId = clientId;
+    }
+
+    public MqttConnectOptions getOptions() {
+        return options;
+    }
+
+    public void setOptions(MqttConnectOptions options) {
+        this.options = options;
     }
 
 }

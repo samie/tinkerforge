@@ -1,4 +1,4 @@
-package org.vaadin.se.mqtt.displays;
+package org.vaadin.mqtt.ui.displays;
 
 import com.vaadin.addon.charts.Chart;
 import com.vaadin.addon.charts.model.AbstractSeries;
@@ -6,6 +6,7 @@ import com.vaadin.addon.charts.model.Background;
 import com.vaadin.addon.charts.model.ChartModel;
 import com.vaadin.addon.charts.model.ChartType;
 import com.vaadin.addon.charts.model.Configuration;
+import com.vaadin.addon.charts.model.DataSeries;
 import com.vaadin.addon.charts.model.Labels;
 import com.vaadin.addon.charts.model.Marker;
 import com.vaadin.addon.charts.model.Pane;
@@ -41,7 +42,8 @@ public class ChartUtils {
     }
 
     public static ChartUtils build(String title, ChartType type, boolean showLegend) {
-        return new ChartUtils(new Chart(type)).title(title).legend(false);
+        ChartUtils cu = new ChartUtils(new Chart(type)).title(title).legend(false);
+        return cu;
     }
 
     public ChartUtils legend(boolean showLegend) {
@@ -214,13 +216,18 @@ public class ChartUtils {
 
     public ChartUtils colors(String[] colors) {
         if (colors != null && colors.length > 1) {
-            // Gradient color spec
-            List<YAxis.Stop> stops = convertToColors(colors);
-            stops(stops.toArray(new YAxis.Stop[stops.size()]));
+
+            if (model.getType() == ChartType.SOLIDGAUGE) {
+                // Stops are only supported in SOLIDGAUGE.                       
+                List<YAxis.Stop> stops = convertToColors(colors);
+                stops(stops.toArray(new YAxis.Stop[]{}));
+            } else {
+                gradient(colors[0], colors[colors.length - 1]);
+            }
         }
         if (colors != null && colors.length == 1) {
             // Single color spec
-            getYAxis().setLineColor(new SolidColor(colors[0]));
+            color(colors[0]);
         }
         return this;
     }
@@ -237,6 +244,7 @@ public class ChartUtils {
         for (int i = 0; i < colors.length; i++) {
             stops.add(new YAxis.Stop(0.1f + i * stepSize, new SolidColor(colors[i])));
         }
+        ;
         return stops;
     }
 
@@ -252,6 +260,22 @@ public class ChartUtils {
         gradient.addColorStop(0, new SolidColor(from));
         gradient.addColorStop(1, new SolidColor(from));
         return gradient;
+    }
+
+    void color(Series series, String color) {
+        ((DataSeries) series).getPlotOptions().setColor(new SolidColor(color));
+    }
+
+    void color(String color) {
+        conf.getSeries().forEach(s -> color(s, color));
+    }
+
+    void gradient(Series series, String min, String max) {
+        ((DataSeries) series).getPlotOptions().setColor(getLinearGradient(min, max));
+    }
+
+    void gradient(String min, String max) {
+        conf.getSeries().forEach(s -> gradient(s, min, max));
     }
 
 }

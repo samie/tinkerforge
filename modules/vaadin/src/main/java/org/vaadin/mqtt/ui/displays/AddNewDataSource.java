@@ -1,9 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package org.vaadin.se.mqtt.displays;
+package org.vaadin.mqtt.ui.displays;
 
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
@@ -19,10 +14,12 @@ import org.vaadin.viritin.fields.TypedSelect;
  */
 public class AddNewDataSource extends CustomComponent {
 
-    List<Class<? extends MqttDisplay>> displayTypes = Arrays.asList(BarGaugeDisplay.class,
-            GaugeDisplay.class,
-            SparklineDisplay.class,
-            PolarDisplay.class);
+    List<Class<? extends MqttDisplay>> displayTypes = Arrays.asList(new Class[]{
+        BarGaugeDisplay.class,
+        GaugeDisplay.class,
+        SparklineDisplay.class,
+        PolarDisplay.class
+    });
     VerticalLayout baseLayout = new VerticalLayout();
     MTextField url = new MTextField("MQTT server URL", "tcp://mqtt.virit.in:1883");
     MTextField topic = new MTextField("Message topic", "TinkerForge/Wetterstation/Light");
