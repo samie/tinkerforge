@@ -44,10 +44,11 @@ public class MqttClientBuilderTest {
                 .clientUIDGenerated()
                 .build();
         sender.connect();
-        MqttBuffer buffer = new MqttBuffer()
-                .client(sender).topic(TEST_TOPIC)
-                .qos(QUALITY)
-                .retained(true);
+        MqttBuffer buffer = MqttBuffer.newBuilder()
+                .withClient(sender).withTopic(TEST_TOPIC)
+                .withQos(QUALITY)
+                .withRetained(true)
+                .build();
 
         MqttClient consumer = builder
                 .uri("tcp://" + BROKER + ":1883")
@@ -87,25 +88,6 @@ public class MqttClientBuilderTest {
         assertTrue(longAdder.intValue() > 0);
         assertEquals(100, longAdder.intValue());
         System.out.println("resultSet = " + longAdder.intValue());
-
-//        WaitForQ waitForQ = new WaitForQ();
-//        waitForQ.addShutDownAction(() -> {
-//            try {
-//                sender.close();
-//            } catch (MqttException e) {
-//                e.printStackTrace();
-//            }
-//        });
-//        waitForQ.addShutDownAction(() -> {
-//            try {
-//                consumer.close();
-//            } catch (MqttException e) {
-//                e.printStackTrace();
-//            }
-//        });
-//        waitForQ.addShutDownAction(() -> System.exit(0));
-//        waitForQ.waitForQ();
-
     }
 
 

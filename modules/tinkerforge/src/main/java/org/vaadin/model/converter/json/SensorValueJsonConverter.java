@@ -1,7 +1,7 @@
 package org.vaadin.model.converter.json;
 
 import com.google.gson.Gson;
-import org.vaadin.model.SensorValue;
+import org.rapidpm.module.iot.tinkerforge.data.SensorDataElement;
 
 /**
  * Created by sven on 19.02.15.
@@ -9,12 +9,12 @@ import org.vaadin.model.SensorValue;
 public class SensorValueJsonConverter {
 
 
-    public SensorValue fromJson(String json) {
+    public SensorDataElement fromJson(String json) {
         final Gson gson = new Gson();
-        return gson.fromJson(json, SensorValue.class);
+        return gson.fromJson(json, SensorDataElement.class);
     }
 
-    public String toJson(SensorValue sensorValue) {
+    public String toJson(SensorDataElement sensorValue) {
         Gson gson = new Gson();
         return gson.toJson(sensorValue);
     }

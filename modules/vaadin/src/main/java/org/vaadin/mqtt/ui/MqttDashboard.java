@@ -13,6 +13,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.vaadin.mqtt.ui.displays.MqttDisplay;
 import org.vaadin.mqtt.ui.inputs.MqttInput;
+import org.vaadin.tinkerforge.modules.communication.mqtt.MqttTopic;
 
 /**
  * Dashboard definition linking DataSource to specific Display.

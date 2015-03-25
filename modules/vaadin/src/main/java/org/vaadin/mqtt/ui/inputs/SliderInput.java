@@ -9,10 +9,10 @@ import com.vaadin.data.Property;
 import com.vaadin.ui.Slider;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.eclipse.paho.client.mqttv3.MqttException;
+
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.vaadin.mqtt.ui.MqttDataSource;
-import org.vaadin.mqtt.ui.MqttTopic;
+import org.vaadin.tinkerforge.modules.communication.mqtt.MqttTopic;
 
 /**
  *
@@ -27,7 +27,7 @@ public class SliderInput extends MqttInput {
     private final String messageFormat;
 
     public SliderInput(MqttDataSource source, String messageformat) {
-        super(source, source.getTopic().getTitle());
+        super(source, source.getTopic().getName());
         this.messageFormat = messageformat != null ? messageformat : VALUE_PLACEHOLDER;
         this.topic = source.getTopic();
         double min = topic.getMin().doubleValue();
@@ -57,7 +57,7 @@ public class SliderInput extends MqttInput {
             MqttMessage msg = new MqttMessage((SliderInput.this.messageFormat.replace(VALUE_PLACEHOLDER, "" + slider.getValue())).getBytes());
             msg.setQos(DEFAULT_QOS);
             try {
-                getClient().publish(topic.getId(), msg);
+                getClient().publish(topic.getTopic(), msg);
             } catch (Exception ex) {
                 Logger.getLogger(SliderInput.class.getName()).log(Level.SEVERE, null, ex);
             }

@@ -10,22 +10,10 @@ import java.util.stream.Collectors;
  */
 public class DemoDataFunctionGenerator {
 
-
     private int valueMin = 0;
     private int valueMax = 40;
     private int maxCount = 5;
     private int stepSize = 10;
-
-
-
-    //    public static void main(String[] args) {
-//        DemoDataFunctionGenerator generator = new DemoDataFunctionGenerator();
-//        for(int i = 0; i<(maxCount * 4 *2); i++){
-//            Double aDouble = generator.nextValue();
-//            System.out.println("aDouble = " + aDouble);
-//        }
-//    }
-
 
     private int lastValue = 0;
     private List<Double> doubleList = Collections.EMPTY_LIST;

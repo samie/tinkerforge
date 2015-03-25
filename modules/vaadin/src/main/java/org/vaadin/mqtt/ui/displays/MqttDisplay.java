@@ -14,10 +14,10 @@ import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
-import org.vaadin.alump.masonry.MasonryLayout;
 import org.vaadin.mqtt.ui.MqttDataSource;
 import org.vaadin.mqtt.ui.MqttMessageConverter;
 import org.vaadin.mqtt.ui.MqttComponent;
+import org.vaadin.tinkerforge.modules.communication.mqtt.MqttTopic;
 
 /**
  * Abstract parent class for displays with single MQTT client / topic.
@@ -36,7 +36,7 @@ public abstract class MqttDisplay extends MqttComponent {
     private String[] colors;
 
     MqttDisplay(MqttDataSource source, int historyLength, MqttMessageConverter converter) {
-        super(source, source.getTopic().getTitle());
+        super(source, source.getTopic().getName());
         this.historyLength = historyLength;
         this.converter = converter;
     }
@@ -51,7 +51,7 @@ public abstract class MqttDisplay extends MqttComponent {
             } else {
                 client.connect();
             }
-            client.subscribe(this.getSource().getTopic().getId(), 1);
+            client.subscribe(this.getSource().getTopic().getTopic(), 1);
             showUserMessage(STR_WAITING_READING, true);
         } catch (MqttException ex) {
             Logger.getLogger(MqttDisplay.class.getName()).log(Level.SEVERE, null, ex);
@@ -64,7 +64,7 @@ public abstract class MqttDisplay extends MqttComponent {
         try {
             MqttClient client = getClient();
             if (client != null) {
-                client.unsubscribe(getSource().getTopic().getId());
+                client.unsubscribe(getSource().getTopic().getTopic());
                 client.close();
             }
         } catch (MqttException ex) {
@@ -82,16 +82,15 @@ public abstract class MqttDisplay extends MqttComponent {
     }
 
     public void messageArrived(String id, MqttMessage message) {
-
         if (chart == null) {
-            chart = createChart(getSource().getTopic().getTitle(), getSource().getTopic().getUnit(), getSource().getTopic().getMin(), getSource().getTopic().getMax());
+            MqttTopic mqttTopic = getSource().getTopic();
+            chart = createChart(mqttTopic.getName(), mqttTopic.getUnit(), mqttTopic.getMin(), mqttTopic.getMax());
             showChart();
-            ((MasonryLayout) getParent()).markAsDirty();
+            getParent().markAsDirty();
         }
 
         // Update the display values
         converter.convert(this, id, message);
-
     }
 
     public List<Series> getSeries() {
@@ -123,10 +122,8 @@ public abstract class MqttDisplay extends MqttComponent {
      * @param values
      */
     public void updateValue(Number... values) {
-        getSeries().forEach(s -> {
-            IntStream.range(0, values.length).forEach(idx
-                    -> updateSeries((DataSeries) s, idx, values[idx], 0 == historyLength));
-        });
+        getSeries().forEach(s -> IntStream.range(0, values.length).forEach(idx
+                -> updateSeries((DataSeries) s, idx, values[idx], 0 == historyLength)));
     }
 
     /**
@@ -169,23 +166,17 @@ public abstract class MqttDisplay extends MqttComponent {
 
         @Override
         public void connectionLost(Throwable t) {
-            getUI().access(() -> {
-                MqttDisplay.this.connectionLost(t.getMessage());
-            });
+            getUI().access(() -> MqttDisplay.this.connectionLost(t.getMessage()));
         }
 
         @Override
         public void messageArrived(String string, MqttMessage mm) throws Exception {
-            getUI().access(() -> {
-                MqttDisplay.this.messageArrived(string, mm);
-            });
+            getUI().access(() -> MqttDisplay.this.messageArrived(string, mm));
         }
 
         @Override
         public void deliveryComplete(IMqttDeliveryToken imdt) {
-            getUI().access(() -> {
-                MqttDisplay.this.deliveryComplete(imdt);
-            });
+            getUI().access(() -> MqttDisplay.this.deliveryComplete(imdt));
         }
     }
 

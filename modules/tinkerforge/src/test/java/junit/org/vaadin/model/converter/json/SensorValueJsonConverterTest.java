@@ -3,6 +3,7 @@ package junit.org.vaadin.model.converter.json;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.rapidpm.module.iot.tinkerforge.data.SensorDataElement;
 import org.vaadin.model.SensorValue;
 import org.vaadin.model.converter.json.SensorValueJsonConverter;
 
@@ -25,59 +26,22 @@ public class SensorValueJsonConverterTest {
     @Test
     public void testFromToJson01() throws Exception {
         final SensorValueJsonConverter converter = new SensorValueJsonConverter();
-        LocalDateTime now = LocalDateTime.now();
 
-        SensorValue value = SensorValue.newBuilder()
-                .localDateTime(now)
-                .deviceType("type")
-                .rawValue(0)
-                .build();
-        check(converter, value);
-    }
-    @Test
-    public void testFromToJson02() throws Exception {
-        final SensorValueJsonConverter converter = new SensorValueJsonConverter();
-        LocalDateTime now = LocalDateTime.now();
-
-        SensorValue value = SensorValue.newBuilder()
-                .localDateTime(now)
-                .deviceType("type")
-                .rawValue(-1)
-                .build();
-        check(converter, value);
-    }
-    @Test
-    public void testFromToJson03() throws Exception {
-        final SensorValueJsonConverter converter = new SensorValueJsonConverter();
-        LocalDateTime now = LocalDateTime.now();
-
-        SensorValue value = SensorValue.newBuilder()
-                .localDateTime(now)
-                .deviceType("type")
-                .rawValue(Integer.MIN_VALUE)
-                .build();
-        check(converter, value);
-    }
-    @Test
-    public void testFromToJson04() throws Exception {
-        final SensorValueJsonConverter converter = new SensorValueJsonConverter();
-        LocalDateTime now = LocalDateTime.now();
-
-        SensorValue value = SensorValue.newBuilder()
-                .localDateTime(now)
-                .deviceType("")
-                .rawValue(Integer.MIN_VALUE)
-                .build();
+        SensorDataElement value = new SensorDataElement();
+        value.setSensorValue(1.0);
+        value.setMasterUID("ARARA");
+        value.setDate(LocalDateTime.now());
         check(converter, value);
     }
 
 
-    private void check(SensorValueJsonConverter converter, SensorValue value) {
+
+    private void check(SensorValueJsonConverter converter, SensorDataElement value) {
         String s = converter.toJson(value);
         assertNotNull(s);
         assertFalse(s.isEmpty());
         System.out.println("s = " + s);
-        SensorValue fromJson = converter.fromJson(s);
+        SensorDataElement fromJson = converter.fromJson(s);
         assertNotNull(fromJson);
         assertTrue(fromJson.equals(value));
     }

@@ -30,14 +30,34 @@ import java.util.function.Supplier;
  */
 public class MqttBuffer {
 
-  static final ExecutorService fixedThreadPool = Executors.newFixedThreadPool(4); //TODO dynamisch
+  private static final ExecutorService fixedThreadPool = Executors.newFixedThreadPool(4); //TODO dynamisch
 
   private String topic;
   private MqttClient client;
   private int qos = 1;
   private boolean retained = true;
 
-  public MqttBuffer topic(String s) {
+    private MqttBuffer(Builder builder) {
+        topic = builder.topic;
+        client = builder.client;
+        qos = builder.qos;
+        retained = builder.retained;
+    }
+
+    public static Builder newBuilder() {
+        return new Builder();
+    }
+
+    public static Builder newBuilder(MqttBuffer copy) {
+        Builder builder = new Builder();
+        builder.topic = copy.topic;
+        builder.client = copy.client;
+        builder.qos = copy.qos;
+        builder.retained = copy.retained;
+        return builder;
+    }
+
+    public MqttBuffer topic(String s) {
     this.topic = s;
     return this;
   }
@@ -69,4 +89,39 @@ public class MqttBuffer {
     CompletableFuture.supplyAsync(task, fixedThreadPool)
         .thenAccept(System.out::println);
   }
+
+
+    public static final class Builder {
+        private String topic;
+        private MqttClient client;
+        private int qos;
+        private boolean retained;
+
+        private Builder() {
+        }
+
+        public Builder withTopic(String topic) {
+            this.topic = topic;
+            return this;
+        }
+
+        public Builder withClient(MqttClient client) {
+            this.client = client;
+            return this;
+        }
+
+        public Builder withQos(int qos) {
+            this.qos = qos;
+            return this;
+        }
+
+        public Builder withRetained(boolean retained) {
+            this.retained = retained;
+            return this;
+        }
+
+        public MqttBuffer build() {
+            return new MqttBuffer(this);
+        }
+    }
 }

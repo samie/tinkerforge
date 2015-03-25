@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.vaadin.mqtt.ui.displays.MqttDisplay;
+import org.vaadin.tinkerforge.modules.communication.mqtt.MqttClientBuilder;
 
 /**
  * A MQTT UI component to be presented in dashboard.
@@ -82,17 +83,20 @@ public abstract class MqttComponent extends CustomComponent {
     @Override
     public void attach() {
         super.attach();
-
         // Lazy initialization of MQTT client
         if (client == null) {
             try {
-                this.client = new MqttClient(this.source.getUrl(), this.source.getClientId(), new MemoryPersistence());
+                this.client = MqttClientBuilder.builder()
+                        .uri(this.source.getUrl())
+                        .clientUIDGenerated()
+                        .memoryPersistence(true)
+                        .build();
+//                this.client = new MqttClient(this.source.getUrl(), this.source.getClientId(), new MemoryPersistence());
             } catch (Exception ex) {
                 Logger.getLogger(MqttDisplay.class.getName()).log(Level.SEVERE, null, ex);
                 showUserMessage(STR_CONNECTION_ERROR + this.source.getUrl() +" clientId='" + this.source.getClientId() + "': " + ex.getMessage(), false);
             }
         }
-
         connect();
     }
 

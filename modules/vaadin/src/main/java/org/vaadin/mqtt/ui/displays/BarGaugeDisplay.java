@@ -4,9 +4,6 @@ import com.vaadin.addon.charts.Chart;
 import com.vaadin.addon.charts.model.ChartType;
 import com.vaadin.addon.charts.model.DataSeries;
 import com.vaadin.addon.charts.model.PlotOptionsColumn;
-import com.vaadin.addon.charts.model.YAxis;
-import com.vaadin.addon.charts.model.style.GradientColor;
-import com.vaadin.addon.charts.model.style.SolidColor;
 import org.vaadin.mqtt.ui.MqttDataSource;
 import org.vaadin.mqtt.ui.MqttMessageConverter;
 

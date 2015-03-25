@@ -32,6 +32,7 @@ public class MqttClientBuilder {
   private String clientUID;
   private boolean memoryPersistence = true;
   private boolean filePersistence = false;
+public static MqttClientBuilder builder(){ return new MqttClientBuilder(); }
 
   public MqttClient build(){
     MqttClient client;

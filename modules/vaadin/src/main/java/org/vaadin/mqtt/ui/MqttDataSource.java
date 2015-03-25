@@ -1,6 +1,7 @@
 package org.vaadin.mqtt.ui;
 
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
+import org.vaadin.tinkerforge.modules.communication.mqtt.MqttTopic;
 
 /**
  * Data source specifying the server, MQTT topic.
